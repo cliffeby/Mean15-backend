@@ -13,6 +13,8 @@ const customerRoutes = require('./routes/customerRoutes');
 const loanRoutes = require('./routes/loanRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const memberRoutes = require('./routes/memberRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -42,6 +44,8 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/members', memberRoutes);
+app.use('/api/users', userRoutes);
 
 // healthcheck
 app.get('/', (req, res) => {

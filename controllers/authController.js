@@ -5,13 +5,16 @@ const signToken = (user) => jwt.sign({ id: user._id, role: user.role }, process.
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+  const { name, email, password, role } = req.body;
+  console.log('Register request payload:', req.body);
+  console.log('Registering user with role:', name, email, role);
     if (!name || !email || !password || !role) {
       return res.status(400).json({ success: false, message: 'Missing fields' });
     }
-
+    
     // validate role
     if (!['admin', 'user'].includes(role.toLowerCase())) {
+      console.log('role', role);
       return res.status(400).json({ success: false, message: 'Invalid role' });
     }
 
