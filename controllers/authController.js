@@ -2,12 +2,12 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 const signToken = (user) => jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES || '7d' });
-
+console.log('Auth Controller loaded', signToken);
 exports.register = async (req, res, next) => {
+  console.log('Register request payload:', req.body);
   try {
   const { name, email, password, role } = req.body;
-  console.log('Register request payload:', req.body);
-  console.log('Registering user with role:', name, email, role);
+  
     if (!name || !email || !password || !role) {
       return res.status(400).json({ success: false, message: 'Missing fields' });
     }
@@ -33,6 +33,7 @@ exports.register = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+  console.log('Register request payload:', req.body);
 };
 
 
