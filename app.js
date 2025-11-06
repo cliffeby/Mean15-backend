@@ -15,6 +15,7 @@ const offerRoutes = require('./routes/offerRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const userRoutes = require('./routes/userRoutes');
+const scorecardRoutes = require('./routes/scorecardRoutes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/offers', offerRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/scorecards', scorecardRoutes);
 
 // healthcheck
 app.get('/', (req, res) => {
