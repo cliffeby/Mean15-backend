@@ -1,0 +1,3 @@
+"use strict";
+// ...existing code from scorecardRoutes.js will be inserted here...
+//# sourceMappingURL=scorecardRoutes.js.map
