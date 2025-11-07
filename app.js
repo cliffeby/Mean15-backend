@@ -17,6 +17,7 @@ const memberRoutes = require('./routes/memberRoutes');
 const userRoutes = require('./routes/userRoutes');
 const scorecardRoutes = require('./routes/scorecardRoutes');
 const scoreRoutes = require('./routes/scoreRoutes');
+const matchRoutes = require('./routes/matchRoutes');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/members', memberRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scorecards', scorecardRoutes);
 app.use('/api/scores', scoreRoutes);
+app.use('/api/matches', matchRoutes);
 
 // healthcheck
 app.get('/', (req, res) => {
