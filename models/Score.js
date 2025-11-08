@@ -8,8 +8,34 @@ const ScoreSchema = new Schema(
     postedScore: Number,
     scores: [Number],
     scoresToPost: [Number],
-    usgaIndex: Number,
-    usgaIndexForTodaysScore: Number,
+    usgaIndex: {
+      type: Number,
+      min: [-10, 'USGA Index cannot be less than -10.0'],
+      max: [54, 'USGA Index cannot be greater than 54.0'],
+      validate: {
+        validator: function(v) {
+          // Allow null/undefined values
+          if (v == null) return true;
+          // Ensure the value has at most 1 decimal place
+          return Number.isInteger(v * 10);
+        },
+        message: 'USGA Index must have at most one decimal place'
+      }
+    },
+    usgaIndexForTodaysScore: {
+      type: Number,
+      min: [-10, 'USGA Index for today cannot be less than -10.0'],
+      max: [54, 'USGA Index for today cannot be greater than 54.0'],
+      validate: {
+        validator: function(v) {
+          // Allow null/undefined values
+          if (v == null) return true;
+          // Ensure the value has at most 1 decimal place
+          return Number.isInteger(v * 10);
+        },
+        message: 'USGA Index for today must have at most one decimal place'
+      }
+    },
     handicap: Number,
     wonTwoBall: { type: Boolean, default: false },
     wonOneBall: { type: Boolean, default: false },

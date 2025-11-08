@@ -3,7 +3,20 @@ const mongoose = require('mongoose');
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  usgaIndex: { type: Number },
+  usgaIndex: { 
+    type: Number,
+    min: [-10, 'USGA Index cannot be less than -10.0'],
+    max: [54, 'USGA Index cannot be greater than 54.0'],
+    validate: {
+      validator: function(v) {
+        // Allow null/undefined values
+        if (v == null) return true;
+        // Ensure the value has at most 1 decimal place
+        return Number.isInteger(v * 10);
+      },
+      message: 'USGA Index must have at most one decimal place'
+    }
+  },
   lastDatePlayed: { type: String },
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   email: { type: String },
