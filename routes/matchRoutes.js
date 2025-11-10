@@ -8,7 +8,8 @@ const {
   deleteMatch,
   getMatchesByUser,
   getMatchesByStatus,
-  updateMatchStatus
+  updateMatchStatus,
+  updateMatchScorecard
 } = require('../controllers/matchController');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
@@ -27,5 +28,6 @@ router.delete('/:id', admin, deleteMatch);      // Delete match (admin only)
 router.get('/user/:userId', getMatchesByUser);           // Get matches by user
 router.get('/status/:status', getMatchesByStatus);       // Get matches by status
 router.patch('/:id/status', updateMatchStatus);          // Update match status
+router.patch('/:id/scorecard', admin, updateMatchScorecard); // Update match scorecard (admin only)
 
 module.exports = router;

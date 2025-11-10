@@ -6,6 +6,19 @@ const Match = require('../models/Match');
 exports.getMatches = async (req, res, next) => {
   try {
     const matches = await Match.find().populate('scorecardId', 'name slope rating');
+    
+    // Debug: Check which matches have scorecards
+    console.log('=== MATCH SCORECARD DEBUG ===');
+    matches.forEach((match, index) => {
+      console.log(`Match ${index + 1}: ${match.name}`);
+      console.log(`  - ID: ${match._id}`);
+      console.log(`  - ScorecardId: ${match.scorecardId}`);
+      console.log(`  - Has Scorecard: ${!!match.scorecardId}`);
+      console.log(`  - Scorecard Type: ${typeof match.scorecardId}`);
+      console.log('---');
+    });
+    console.log('=== END DEBUG ===');
+    
     res.json({ success: true, count: matches.length, matches });
   } catch (err) {
     next(err);
@@ -17,12 +30,37 @@ exports.getMatches = async (req, res, next) => {
 // @access  Private
 exports.getMatch = async (req, res, next) => {
   try {
-    const match = await Match.findById(req.params.id).populate('scorecardId', 'name slope rating');
+    console.log('=== GET MATCH DEBUG ===');
+    console.log('Requested match ID:', req.params.id);
+    console.log('ID type:', typeof req.params.id);
+    console.log('ID length:', req.params.id?.length);
+    
+    // First get the raw match without population to see what's actually stored
+    const rawMatch = await Match.findById(req.params.id);
+    console.log('Raw match found:', !!rawMatch);
+    if (rawMatch) {
+      console.log('Raw match from DB:', JSON.stringify(rawMatch, null, 2));
+      console.log('Raw match scorecardId:', rawMatch?.scorecardId);
+      console.log('Raw match scorecardId exists:', !!rawMatch?.scorecardId);
+    }
+    
+    // Then get populated version
+    const match = await Match.findById(req.params.id).populate('scorecardId', 'name slope rating pars hCaps par');
     if (!match) {
       return res.status(404).json({ success: false, message: 'Match not found' });
     }
+    
+    console.log('Populated match scorecardId:', match.scorecardId);
+    console.log('Populated match scorecardId type:', typeof match.scorecardId);
+    console.log('Is scorecardId populated object?', match.scorecardId && typeof match.scorecardId === 'object');
+    console.log('Sending response with match');
+    console.log('=== END GET MATCH DEBUG ===');
+    
     res.json({ success: true, match });
   } catch (err) {
+    console.error('Error fetching match:', err);
+    console.error('Error details:', err.message);
+    console.error('Stack:', err.stack);
     next(err);
   }
 };
@@ -125,6 +163,32 @@ exports.updateMatchStatus = async (req, res, next) => {
     
     res.json({ success: true, match });
   } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Update match scorecard
+// @route   PATCH /api/matches/:id/scorecard
+// @access  Private (Admin)
+exports.updateMatchScorecard = async (req, res, next) => {
+  try {
+    const { scorecardId } = req.body;
+    console.log(`Updating match ${req.params.id} with scorecardId: ${scorecardId}`);
+    
+    const match = await Match.findByIdAndUpdate(
+      req.params.id, 
+      { scorecardId }, 
+      { new: true }
+    ).populate('scorecardId', 'name slope rating');
+    
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found' });
+    }
+    
+    console.log('Updated match:', match);
+    res.json({ success: true, match });
+  } catch (err) {
+    console.error('Error updating match scorecard:', err);
     next(err);
   }
 };

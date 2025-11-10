@@ -18,7 +18,10 @@ const MatchSchema = new Schema(
     },
     players: Number,
     status: { type: Schema.Types.String, default: 'open' },
-    lineUps: {},
+    lineUps: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Member',
+    }],
     datePlayed: Date,
     user: {
       type: Schema.Types.String,
