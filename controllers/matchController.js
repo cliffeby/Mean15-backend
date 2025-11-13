@@ -1,4 +1,5 @@
 const Match = require('../models/Match');
+const Score = require('../models/Score');
 
 // @desc    Get all matches
 // @route   GET /api/matches
@@ -107,11 +108,69 @@ exports.updateMatch = async (req, res, next) => {
 // @access  Private (Admin only)
 exports.deleteMatch = async (req, res, next) => {
   try {
-    const match = await Match.findByIdAndDelete(req.params.id);
+    const matchId = req.params.id;
+    
+    // Check for associated scores
+    const associatedScores = await Score.find({ matchId: matchId });
+    
+    if (associatedScores.length > 0) {
+      // Check if force delete was requested - handle undefined req.body
+      const { force, action } = req.body || {};
+      
+      if (!force) {
+        return res.status(409).json({ 
+          success: false, 
+          message: 'Cannot delete match with associated scores',
+          conflictType: 'scores',
+          conflictCount: associatedScores.length,
+          scores: associatedScores.map(score => ({
+            id: score._id,
+            name: score.name,
+            datePlayed: score.datePlayed,
+            score: score.score
+          })),
+          options: {
+            nullify: 'Remove match reference from scores (scores remain)',
+            delete: 'Delete match and all associated scores',
+            cancel: 'Cancel deletion'
+          }
+        });
+      }
+      
+      // Handle forced deletion with specified action
+      if (action === 'nullify') {
+        // Set matchId to null for all associated scores
+        await Score.updateMany({ matchId: matchId }, { matchId: null });
+        console.log(`Nullified matchId for ${associatedScores.length} scores`);
+      } else if (action === 'delete') {
+        // Delete all associated scores
+        await Score.deleteMany({ matchId: matchId });
+        console.log(`Deleted ${associatedScores.length} associated scores`);
+      } else if (action) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid action. Use "nullify" or "delete"'
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Action required when force=true. Use "nullify" or "delete"'
+        });
+      }
+    }
+
+    // Now delete the match
+    const match = await Match.findByIdAndDelete(matchId);
     if (!match) {
       return res.status(404).json({ success: false, message: 'Match not found' });
     }
-    res.json({ success: true, message: 'Match deleted successfully' });
+    
+    res.json({ 
+      success: true, 
+      message: 'Match deleted successfully',
+      scoresAffected: associatedScores.length,
+      action: associatedScores.length > 0 ? (req.body.action || 'none') : 'none'
+    });
   } catch (err) {
     next(err);
   }

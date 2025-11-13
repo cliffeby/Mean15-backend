@@ -10,13 +10,12 @@ const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
 const customerRoutes = require('./routes/customerRoutes');
-const loanRoutes = require('./routes/loanRoutes');
-const offerRoutes = require('./routes/offerRoutes');
 const memberRoutes = require('./routes/memberRoutes');
 const userRoutes = require('./routes/userRoutes');
 const scorecardRoutes = require('./routes/scorecardRoutes');
 const scoreRoutes = require('./routes/scoreRoutes');
 const matchRoutes = require('./routes/matchRoutes');
+const orphanRoutes = require('./routes/orphanRoutes');
 
 const app = express();
 
@@ -43,13 +42,12 @@ app.use(limiter);
 // Mount API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
-app.use('/api/loans', loanRoutes);
-app.use('/api/offers', offerRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scorecards', scorecardRoutes);
 app.use('/api/scores', scoreRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/orphans', orphanRoutes);
 
 // healthcheck
 app.get('/', (req, res) => {

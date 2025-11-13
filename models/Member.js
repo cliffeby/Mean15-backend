@@ -19,8 +19,18 @@ const memberSchema = new mongoose.Schema({
   },
   lastDatePlayed: { type: String },
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
-  email: { type: String },
-  user: { type: String }
+  Email: { type: String },
+  user: { type: String },
+  GHIN: { type: String },
+  CellPhone: { type: String },
+  usgaIndex: { type: Number },
+  defaultTees: { type: String },
+  Street: { type: String },
+  City: { type: String },
+  State: { type: String },
+  Zip: { type: String },
+  Spouse: { type: String },
+  DateJoined: { type: Number }
 }, {
   collection: 'members',
   timestamps: true

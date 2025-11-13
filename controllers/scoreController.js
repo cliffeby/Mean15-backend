@@ -3,7 +3,11 @@ const mongoose = require('mongoose');
 
 exports.getScores = async (req, res, next) => {
   try {
-    const scores = await Score.find();
+    const scores = await Score.find()
+      .populate('matchId', 'name datePlayed status')
+      .populate('memberId', 'name email')
+      .populate('scorecardId', 'name')
+      .sort({ datePlayed: -1 });
     res.json({ success: true, count: scores.length, scores });
   } catch (err) {
     next(err);
@@ -113,7 +117,11 @@ exports.getScoresByMember = async (req, res, next) => {
 
 exports.getScoresByMatch = async (req, res, next) => {
   try {
-    const scores = await Score.find({ matchId: req.params.matchId });
+    const scores = await Score.find({ matchId: req.params.matchId })
+      .populate('matchId', 'name datePlayed status')
+      .populate('memberId', 'name email')
+      .populate('scorecardId', 'name')
+      .sort({ datePlayed: -1 });
     res.json({ success: true, count: scores.length, scores });
   } catch (err) {
     next(err);
