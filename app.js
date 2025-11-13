@@ -1,4 +1,7 @@
 // app.js
+const environment = require('./config/environment');
+
+// ...existing code...
 const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -55,8 +58,13 @@ app.use('/api/orphans', orphanRoutes);
 
 // healthcheck
 app.get('/', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // allow all origins
-    res.json({ status: 'ok', env: process.env.NODE_ENV || 'development' });
+  res.setHeader('Access-Control-Allow-Origin', '*'); // allow all origins
+  res.json({ status: 'ok', env: process.env.NODE_ENV || 'development' });
+});
+
+// Expose defaultLeague for admin config and profile logic
+app.get('/api/config/default-league', (req, res) => {
+  res.json({ defaultLeague: environment.defaultLeague });
 });
 
 // error handler (last)

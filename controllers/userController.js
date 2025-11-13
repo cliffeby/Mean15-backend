@@ -22,3 +22,30 @@ exports.deleteUser = async (req, res, next) => {
     next(err);
   }
 };
+
+// Get a single user by ID
+exports.getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update user's defaultLeague
+exports.updateUserLeague = async (req, res, next) => {
+  try {
+    const { defaultLeague } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { defaultLeague },
+      { new: true, runValidators: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
+};
