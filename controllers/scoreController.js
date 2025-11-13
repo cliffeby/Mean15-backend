@@ -5,7 +5,7 @@ exports.getScores = async (req, res, next) => {
   try {
     const scores = await Score.find()
       .populate('matchId', 'name datePlayed status')
-      .populate('memberId', 'name email')
+      .populate('memberId', 'firstName lastName Email')
       .populate('scorecardId', 'name')
       .sort({ datePlayed: -1 });
     res.json({ success: true, count: scores.length, scores });
