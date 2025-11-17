@@ -23,7 +23,6 @@ const memberSchema = new mongoose.Schema({
   user: { type: String },
   GHIN: { type: String },
   CellPhone: { type: String },
-  usgaIndex: { type: Number },
   defaultTees: { type: String },
   Street: { type: String },
   City: { type: String },
