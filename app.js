@@ -12,7 +12,7 @@ const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
-const customerRoutes = require('./routes/customerRoutes');
+// Customer model, controller, and routes removed
 const memberRoutes = require('./routes/memberRoutes');
 const userRoutes = require('./routes/userRoutes');
 const scorecardRoutes = require('./routes/scorecardRoutes');
@@ -48,7 +48,7 @@ app.use(limiter);
 
 // Mount API routes
 app.use('/api/auth', authRoutes);
-app.use('/api/customers', customerRoutes);
+// Customer model, controller, and routes removed
 app.use('/api/members', memberRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/scorecards', scorecardRoutes);

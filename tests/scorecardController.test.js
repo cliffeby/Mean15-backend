@@ -12,7 +12,7 @@ describe('Scorecard API', () => {
 
   beforeAll(async () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
-    await mongoose.connect(testUri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(testUri, {});
 
     // Authenticate as admin and get JWT token
     const adminEmail = 'admin@example.com';

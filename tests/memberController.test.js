@@ -15,7 +15,7 @@ describe('Member API', () => {
   beforeAll(async () => {
     // Connect to test MongoDB
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
-  await mongoose.connect(testUri, { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(testUri, {});
   console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
 
     // Authenticate as admin and get JWT token
