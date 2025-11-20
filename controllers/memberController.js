@@ -132,7 +132,7 @@ exports.removeDuplicateEmails = async (req, res, next) => {
     ]);
 
     let deletedCount = 0;
-    let deletedMembers = [];
+    const deletedMembers = [];
 
     for (const group of duplicates) {
       // Sort by createdAt to keep the oldest member (first registered)
