@@ -163,3 +163,27 @@ exports.removeDuplicateEmails = async (req, res, next) => {
     next(err);
   }
 };
+  // Utility to assign random USGAIndex
+  function assignRandomUSGAIndex(member) {
+    if (!member.usgaIndex || member.usgaIndex === 0) {
+      // Range: -5.0 to 30.0
+      member.usgaIndex = Math.round((Math.random() * 35 - 5) * 10) / 10;
+    }
+    return member;
+  }
+
+  // Batch endpoint: assign random index to all members with missing/zero index
+  exports.assignRandomIndexBatch = async (req, res) => {
+    try {
+      const members = await require('../models/Member').find({ $or: [ { usgaIndex: { $exists: false } }, { usgaIndex: 0 }, { usgaIndex: null } ] });
+      let updated = [];
+      for (const member of members) {
+        assignRandomUSGAIndex(member);
+        await member.save();
+        updated.push({ _id: member._id, usgaIndex: member.usgaIndex });
+      }
+      res.json({ updatedCount: updated.length, updated });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
