@@ -22,6 +22,34 @@ const MatchSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Member',
     }],
+    foursomeIdsTEMP: [[
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      },
+       {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      },
+       {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      },
+       {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      }
+    ]],
+    partnerIdsTEMP: [[
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      },
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Member',
+      }
+    ]],
     datePlayed: Date,
     user: {
       type: Schema.Types.String,
