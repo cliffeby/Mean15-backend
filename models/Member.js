@@ -29,7 +29,8 @@ const memberSchema = new mongoose.Schema({
   State: { type: String },
   Zip: { type: String },
   Spouse: { type: String },
-  DateJoined: { type: Number }
+  DateJoined: { type: Number },
+  hidden: { type: Boolean, default: false }
 }, {
   collection: 'members',
   timestamps: true
