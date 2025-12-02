@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true, select: false },
-  role: { type: String, enum: ['admin', 'user'], default: 'user' },
+  role: { type: String, enum: ['admin', 'user', 'developer', 'fieldhand'], default: 'user' },
   defaultLeague: { type: String, default: 'Rochester' } // Persist user's league selection
 }, { timestamps: true });
 
