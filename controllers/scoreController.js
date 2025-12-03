@@ -1,4 +1,5 @@
 const Score = require('../models/Score');
+const Member = require('../models/Member');
 const mongoose = require('mongoose');
 
 exports.getScores = async (req, res, next) => {
@@ -51,6 +52,20 @@ exports.createScore = async (req, res, next) => {
     
     const score = await Score.create(scoreData);
     
+    // Update member's lastDatePlayed if we have a memberId and datePlayed
+    if (score.memberId && score.datePlayed) {
+      try {
+        await Member.findByIdAndUpdate(
+          score.memberId,
+          { lastDatePlayed: score.datePlayed },
+          { new: true }
+        );
+      } catch (memberErr) {
+        console.warn('Failed to update member lastDatePlayed:', memberErr);
+        // Don't fail the score creation if member update fails
+      }
+    }
+    
     console.log('Created score:', JSON.stringify(score, null, 2));
     res.status(201).json({ success: true, score });
   } catch (err) {
@@ -87,6 +102,20 @@ exports.updateScore = async (req, res, next) => {
     
     const score = await Score.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!score) return res.status(404).json({ success: false, message: 'Not found' });
+    
+    // Update member's lastDatePlayed if we have a memberId and datePlayed
+    if (score.memberId && score.datePlayed) {
+      try {
+        await Member.findByIdAndUpdate(
+          score.memberId,
+          { lastDatePlayed: score.datePlayed },
+          { new: true }
+        );
+      } catch (memberErr) {
+        console.warn('Failed to update member lastDatePlayed:', memberErr);
+        // Don't fail the score update if member update fails
+      }
+    }
     
     console.log('Updated score:', JSON.stringify(score, null, 2));
     res.json({ success: true, score });
