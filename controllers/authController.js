@@ -13,7 +13,7 @@ exports.register = async (req, res, next) => {
     }
     
     // validate role
-    if (!['admin', 'user', 'fieldhand', 'developer'].includes(role.toLowerCase())) {
+    if (!['admin'].includes(role.toLowerCase())) {
       console.log('role', role);
       return res.status(400).json({ success: false, message: 'Invalid role' });
     }

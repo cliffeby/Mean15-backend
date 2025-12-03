@@ -42,6 +42,8 @@ const ScoreSchema = new Schema(
     wonIndo: { type: Boolean, default: false },
     isPaired: { type: Boolean, default: false },
     isScored: { type: Boolean, default: false },
+    scoringMethod: { type: String, default: 'usga' },
+    scoreRecordType: { type: String, enum: ['byHole','total', 'differential'], default: 'total' },
     matchId: {
       type: Schema.Types.ObjectId,
       ref: 'Match',
