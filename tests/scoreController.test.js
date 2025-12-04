@@ -105,4 +105,29 @@ describe('Score Controller', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('lastDatePlayed update', () => {
+    it('should update member.lastDatePlayed when a score is created', async () => {
+      // Create a test member
+      const Member = require('../models/Member');
+      const member = await Member.create({ firstName: 'Test', lastName: 'Player' });
+      const testDate = '2025-12-03';
+      // Create a score for this member with datePlayed
+      const scoreData = {
+        score: 88,
+        memberId: member._id,
+        datePlayed: testDate
+      };
+      const res = await request(app)
+        .post('/api/scores')
+        .set('Authorization', `Bearer ${token}`)
+        .send(scoreData);
+      expect(res.statusCode).toBe(201);
+      // Fetch the member again
+      const updatedMember = await Member.findById(member._id);
+      // Compare only the date portion
+      const actualDate = new Date(updatedMember.lastDatePlayed).toISOString().slice(0, 10);
+      expect(actualDate).toBe(testDate);
+    });
+  });
 });
