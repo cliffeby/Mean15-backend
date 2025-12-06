@@ -17,6 +17,7 @@ const memberSchema = new mongoose.Schema({
       message: 'USGA Index must have at most one decimal place'
     }
   },
+  handicap: { type: Number },
   lastDatePlayed: { type: String },
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   Email: { type: String },
