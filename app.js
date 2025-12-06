@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const scorecardRoutes = require('./routes/scorecardRoutes');
 const scoreRoutes = require('./routes/scoreRoutes');
 const matchRoutes = require('./routes/matchRoutes');
+const hcapRoutes = require('./routes/hcapRoutes');
 const orphanRoutes = require('./routes/orphanRoutes');
 
 const app = express();
@@ -54,6 +55,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/scorecards', scorecardRoutes);
 app.use('/api/scores', scoreRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/hcaps', hcapRoutes);
 app.use('/api/orphans', orphanRoutes);
 
 // healthcheck

@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "lint": "eslint . --fix",
-    "test": "jest"
+    "test": "jest",
+    "smoke:hcap": "node scripts/smoke-hcap.js"
   },
   "keywords": [],
   "author": "",
