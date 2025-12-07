@@ -10,6 +10,8 @@ let token;
 
 describe('HCap Controller', () => {
   beforeAll(async () => {
+    // Ensure JWT secret is available for test token signing
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_tests';
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
     await mongoose.connect(testUri, {});
 
@@ -79,5 +81,25 @@ describe('HCap Controller', () => {
     const updated = await Member.findById(member._id);
     const actual = new Date(updated.lastDatePlayed).toISOString().slice(0, 10);
     expect(actual).toBe(testDate);
+  });
+
+  it('POST /api/hcaps should populate user and username when userId provided', async () => {
+    const User = require('../models/User');
+    let testUser = await User.findOne({ email: 'createhcap@example.com' });
+    if (!testUser) {
+      testUser = await User.create({ name: 'CreateHCapUser', email: 'createhcap@example.com', password: 'pass1234' });
+    }
+
+    const res = await request(app)
+      .post('/api/hcaps')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ userId: testUser._id, postedScore: 75 });
+
+    expect(res.statusCode).toBe(201);
+    const created = res.body.hcap;
+    expect(created).toBeDefined();
+    // Controller should populate `user` from User.name and mirror to `username`
+    expect(created.user).toBe(testUser.name);
+    expect(created.username).toBe(testUser.name);
   });
 });

@@ -23,4 +23,6 @@ When generating code for the backend:
 - Use the utilities forlder for common helper functions.
 - Ensure that all new code is covered by appropriate unit tests.
 - When applicable, include integration tests for API endpoints.
+- When generating test code, use Jest as the testing framework.
+- Every record creation or update should log the user who performed the action, using userId references and string representations where appropriate.
 ## Additional Notes

@@ -40,10 +40,14 @@ const HCapSchema = new Schema(
       ref: "Scorecard",
     },
 
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    // String representation of the user who created/updated the HCap (populated by controller)
+    user: { type: String },
+    // Backwards-compatible alias
+    username: { type: String },
   },
   {
     // collection: 'scores',

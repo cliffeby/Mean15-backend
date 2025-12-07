@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "lint": "eslint . --fix",
     "test": "jest",
-    "smoke:hcap": "node scripts/smoke-hcap.js"
+    "smoke:hcap": "node scripts/smoke-hcap.js",
+    "migrate:backfill-hcap-user": "node scripts/backfill-hcap-user.js"
   },
   "keywords": [],
   "author": "",
