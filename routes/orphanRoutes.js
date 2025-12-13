@@ -12,12 +12,12 @@ const admin = require('../middleware/admin');
 router.use(admin);
 
 // Get orphaned records report
-router.get('/report', getOrphanReport);
+router.get('/report', admin, getOrphanReport);
 
 // Find orphaned scores
-router.get('/find', findOrphans);
+router.get('/find', admin, findOrphans);
 
 // Clean up orphaned records
-router.post('/cleanup', cleanupOrphans);
+router.post('/cleanup', admin, cleanupOrphans);
 
 module.exports = router;
