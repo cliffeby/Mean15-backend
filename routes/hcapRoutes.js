@@ -10,11 +10,9 @@ const {
   getHcapsByMatch,
   getHcapsByScorecard
 } = require('../controllers/hcapController');
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-// Protect all HCap routes with auth
-router.use(auth);
+// Auth is now handled globally in app.js via jwtCheck middleware
 
 router.get('/', getHcaps);
 router.get('/member/:memberId', getHcapsByMember);

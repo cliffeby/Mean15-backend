@@ -5,11 +5,10 @@ const {
   cleanupOrphans,
   findOrphans
 } = require('../controllers/orphanController');
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
+// Auth is now handled globally in app.js via jwtCheck middleware
 // All routes require admin access
-router.use(auth);
 router.use(admin);
 
 // Get orphaned records report

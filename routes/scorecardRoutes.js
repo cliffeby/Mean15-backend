@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { getScorecards, getScorecard, createScorecard, updateScorecard, deleteScorecard } = require('../controllers/scorecardController');
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-router.use(auth);
+// Auth is now handled globally in app.js via jwtCheck middleware
 
 router.get('/', getScorecards);           // Get all scorecards
 router.get('/:id', getScorecard);         // Get single scorecard

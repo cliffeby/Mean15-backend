@@ -10,11 +10,9 @@ const {
   getScoresByMatch,
   getScoresByScorecard
 } = require('../controllers/scoreController');
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-// All routes protected with auth middleware
-router.use(auth);
+// Auth is now handled globally in app.js via jwtCheck middleware
 
 // CRUD routes
 router.get('/', getScores);           // Get all scores

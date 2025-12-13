@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { getMembers, getMember, createMember, updateMember, deleteMember, removeDuplicateEmails, assignRandomIndexBatch } = require('../controllers/memberController');
-const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
 
-// All routes protected with auth middleware
-router.use(auth);
+// Auth is now handled globally in app.js via jwtCheck middleware
 
 // Read routes: any authenticated user
 router.get('/', getMembers);           // Get all members
