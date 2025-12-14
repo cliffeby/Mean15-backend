@@ -73,7 +73,7 @@ exports.createMatch = async (req, res, next) => {
   try {
     const matchData = {
       ...req.body,
-      user: req.user.id
+      user: req.auth?.sub // Use Entra subject as user identifier
     };
     
     const match = await Match.create(matchData);
