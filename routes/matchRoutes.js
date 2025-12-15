@@ -11,21 +11,21 @@ const {
   updateMatchStatus,
   updateMatchScorecard
 } = require('../controllers/matchController');
-const admin = require('../middleware/admin');
+const { requireMinRole } = require('../middleware/roleHierarchy');
 
 // Auth is now handled globally in app.js via jwtCheck middleware
 
 // CRUD routes
 router.get('/', getMatches);                    // Get all matches
 router.get('/:id', getMatch);                   // Get single match
-router.post('/', admin, createMatch);                  // Create new match
-router.put('/:id', admin,updateMatch);                // Update match
-router.delete('/:id', admin, deleteMatch);      // Delete match (admin only)
+router.post('/', requireMinRole('admin'), createMatch);                  // Create new match (admin only)
+router.put('/:id', requireMinRole('admin'), updateMatch);                // Update match (editor or admin)
+router.delete('/:id', requireMinRole('admin'), deleteMatch);      // Delete match (admin only)
 
 // Additional routes
 router.get('/user/:userId', getMatchesByUser);           // Get matches by user
 router.get('/status/:status', getMatchesByStatus);       // Get matches by status
-router.patch('/:id/status', admin, updateMatchStatus);          // Update match status
-router.patch('/:id/scorecard', admin, updateMatchScorecard); // Update match scorecard (admin only)
+router.patch('/:id/status', requireMinRole('admin'), updateMatchStatus);          // Update match status
+router.patch('/:id/scorecard', requireMinRole('admin')  , updateMatchScorecard); // Update match scorecard (admin only)
 
 module.exports = router;
