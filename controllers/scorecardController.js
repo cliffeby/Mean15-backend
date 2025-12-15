@@ -21,7 +21,7 @@ exports.getScorecard = async (req, res, next) => {
 
 exports.createScorecard = async (req, res, next) => {
   try {
-    const scorecard = await Scorecard.create(req.body);
+    const scorecard = await Scorecard.create({ ...req.body, author: req.author });
     res.status(201).json({ success: true, scorecard });
   } catch (err) {
     next(err);
@@ -30,7 +30,7 @@ exports.createScorecard = async (req, res, next) => {
 
 exports.updateScorecard = async (req, res, next) => {
   try {
-    const scorecard = await Scorecard.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const scorecard = await Scorecard.findByIdAndUpdate(req.params.id, { ...req.body, author: req.author }, { new: true });
     if (!scorecard) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, scorecard });
   } catch (err) {

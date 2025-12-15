@@ -21,7 +21,12 @@ const memberSchema = new mongoose.Schema({
   lastDatePlayed: { type: String },
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   Email: { type: String },
-  user: { type: String },
+  // Embedded author object for audit
+  author: {
+    id: { type: String },
+    email: { type: String },
+    name: { type: String }
+  },
   GHIN: { type: String },
   CellPhone: { type: String },
   defaultTees: { type: String },

@@ -14,8 +14,14 @@ const ScorecardSchema = new mongoose.Schema({
   yards: [Number],
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   scorecardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' },
-  user: { type: String }
-}, {
+  user: { type: String },
+  author: {
+    id: { type: String },
+    email: { type: String },
+    name: { type: String }
+  },
+}, 
+{
   collection: 'scorecards',
   timestamps: true
 });

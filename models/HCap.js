@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
 const { Schema } = mongoose;
 
 const HCapSchema = new Schema(
@@ -39,7 +40,6 @@ const HCapSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Scorecard",
     },
-
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",

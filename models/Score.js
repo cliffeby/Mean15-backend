@@ -13,7 +13,7 @@ const ScoreSchema = new Schema(
       min: [-10, 'USGA Index cannot be less than -10.0'],
       max: [54, 'USGA Index cannot be greater than 54.0'],
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           // Allow null/undefined values
           if (v == null) return true;
           // Ensure the value has at most 1 decimal place
@@ -27,7 +27,7 @@ const ScoreSchema = new Schema(
       min: [-10, 'USGA Index for today cannot be less than -10.0'],
       max: [54, 'USGA Index for today cannot be greater than 54.0'],
       validate: {
-        validator: function(v) {
+        validator: function (v) {
           // Allow null/undefined values
           if (v == null) return true;
           // Ensure the value has at most 1 decimal place
@@ -43,7 +43,7 @@ const ScoreSchema = new Schema(
     isPaired: { type: Boolean, default: false },
     isScored: { type: Boolean, default: false },
     scoringMethod: { type: String, default: 'usga' },
-    scoreRecordType: { type: String, enum: ['byHole','total', 'differential'], default: 'total' },
+    scoreRecordType: { type: String, enum: ['byHole', 'total', 'differential'], default: 'total' },
     matchId: {
       type: Schema.Types.ObjectId,
       ref: 'Match',
@@ -75,8 +75,13 @@ const ScoreSchema = new Schema(
       },
     ],
     user: {
-    type: Schema.Types.ObjectId,
-        ref: 'User',
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    author: {
+      id: { type: String },
+      email: { type: String },
+      name: { type: String }
     },
   },
   {

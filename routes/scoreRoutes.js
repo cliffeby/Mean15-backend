@@ -11,6 +11,7 @@ const {
   getScoresByScorecard
 } = require('../controllers/scoreController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
+const { extractAuthor } = require('../middleware/authorExtractor');
 
 // Auth is now handled globally in app.js via jwtCheck middleware
 

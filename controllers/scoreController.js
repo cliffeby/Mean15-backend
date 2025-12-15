@@ -30,7 +30,7 @@ exports.createScore = async (req, res, next) => {
     console.log('Creating score with data:', JSON.stringify(req.body, null, 2));
     
     // Ensure ObjectId fields are properly formatted
-    const scoreData = { ...req.body };
+    const scoreData = { ...req.body, author: req.author };
     
     // Helper function to validate and convert ObjectId
     const convertToObjectId = (value, fieldName) => {
@@ -80,7 +80,7 @@ exports.updateScore = async (req, res, next) => {
     console.log('Update data:', JSON.stringify(req.body, null, 2));
     
     // Ensure ObjectId fields are properly formatted
-    const updateData = { ...req.body };
+    const updateData = { ...req.body, author: req.author };
     
     // Helper function to validate and convert ObjectId
     const convertToObjectId = (value, fieldName) => {

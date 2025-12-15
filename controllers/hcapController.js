@@ -30,7 +30,7 @@ exports.createHcap = async (req, res, next) => {
   try {
     console.log('Creating HCap with data:', JSON.stringify(req.body, null, 2));
 
-    const hcapData = { ...req.body };
+    const hcapData = { ...req.body, author: req.author };
 
     const convertToObjectId = (value, fieldName) => {
       if (!value) return value;
@@ -92,7 +92,7 @@ exports.updateHcap = async (req, res, next) => {
     console.log('Updating HCap with ID:', req.params.id);
     console.log('Update data:', JSON.stringify(req.body, null, 2));
 
-    const updateData = { ...req.body };
+    const updateData ={ ...req.body, author: req.author };
 
     const convertToObjectId = (value, fieldName) => {
       if (!value) return value;

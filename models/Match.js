@@ -27,15 +27,15 @@ const MatchSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'Member',
       },
-       {
+      {
         type: Schema.Types.ObjectId,
         ref: 'Member',
       },
-       {
+      {
         type: Schema.Types.ObjectId,
         ref: 'Member',
       },
-       {
+      {
         type: Schema.Types.ObjectId,
         ref: 'Member',
       }
@@ -55,6 +55,11 @@ const MatchSchema = new Schema(
       type: Schema.Types.String,
       required: false,
       unique: false,
+    },
+    author: {
+      id: { type: String },
+      email: { type: String },
+      name: { type: String }
     },
   },
   {
