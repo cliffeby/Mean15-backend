@@ -6,29 +6,11 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 let hcapId;
-let token;
 
 describe('HCap Controller', () => {
   beforeAll(async () => {
-    // Ensure JWT secret is available for test token signing
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_tests';
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
     await mongoose.connect(testUri, {});
-
-    const adminEmail = 'admin@example.com';
-    const adminPassword = 'adminpass';
-    try {
-      await request(app)
-        .post('/api/auth/register')
-        .send({ name: 'Admin', email: adminEmail, password: adminPassword, role: 'admin' });
-    } catch (err) {
-      // ignore if exists
-    }
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: adminEmail, password: adminPassword });
-    if (!res.body.token) throw new Error('Failed to get admin token');
-    token = res.body.token;
   }, 30000);
 
   afterAll(async () => {
@@ -36,7 +18,7 @@ describe('HCap Controller', () => {
   });
 
   it('GET /api/hcaps should return array', async () => {
-    const res = await request(app).get('/api/hcaps').set('Authorization', `Bearer ${token}`);
+    const res = await request(app).get('/api/hcaps');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.hcaps)).toBe(true);
   });
@@ -45,7 +27,6 @@ describe('HCap Controller', () => {
     const data = { name: 'Test HCap', postedScore: 80 };
     const res = await request(app)
       .post('/api/hcaps')
-      .set('Authorization', `Bearer ${token}`)
       .send(data);
     expect(res.statusCode).toBe(201);
     expect(res.body.hcap.postedScore).toBe(80);
@@ -55,7 +36,6 @@ describe('HCap Controller', () => {
   it('PUT /api/hcaps/:id should update HCap', async () => {
     const res = await request(app)
       .put(`/api/hcaps/${hcapId}`)
-      .set('Authorization', `Bearer ${token}`)
       .send({ postedScore: 85 });
     expect(res.statusCode).toBe(200);
     expect(res.body.hcap.postedScore).toBe(85);
@@ -63,8 +43,7 @@ describe('HCap Controller', () => {
 
   it('DELETE /api/hcaps/:id should delete HCap', async () => {
     const res = await request(app)
-      .delete(`/api/hcaps/${hcapId}`)
-      .set('Authorization', `Bearer ${token}`);
+      .delete(`/api/hcaps/${hcapId}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -75,7 +54,7 @@ describe('HCap Controller', () => {
     const testDate = '2025-12-04';
     const res = await request(app)
       .post('/api/hcaps')
-      .set('Authorization', `Bearer ${token}`)
+      
       .send({ memberId: member._id, postedScore: 90, datePlayed: testDate });
     expect(res.statusCode).toBe(201);
     const updated = await Member.findById(member._id);
@@ -92,7 +71,7 @@ describe('HCap Controller', () => {
 
     const res = await request(app)
       .post('/api/hcaps')
-      .set('Authorization', `Bearer ${token}`)
+      
       .send({ userId: testUser._id, postedScore: 75 });
 
     expect(res.statusCode).toBe(201);

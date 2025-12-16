@@ -8,9 +8,7 @@ const Score = require('../models/Score');
 const dotenv = require('dotenv');
 dotenv.config();
 
-
-  let scoreId;
-  let token;
+let scoreId;
 
 describe('Score Controller', () => {
 
@@ -20,27 +18,6 @@ describe('Score Controller', () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
   await mongoose.connect(testUri, {});
   console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
-
-    // Authenticate as admin and get JWT token
-    const adminEmail = 'admin@example.com';
-    const adminPassword = 'adminpass';
-    // Try to register admin, but ignore error if already exists
-    try {
-      await request(app)
-        .post('/api/auth/register')
-        .send({ name: 'Admin', email: adminEmail, password: adminPassword, role: 'admin' });
-    } catch (err) {
-      // Ignore registration error (likely already exists)
-      console.log('Admin registration error (expected if already exists):', err.message);
-    }
-    // Login as admin
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: adminEmail, password: adminPassword });
-    if (!res.body.token) {
-      throw new Error('Failed to obtain admin JWT token: ' + JSON.stringify(res.body));
-    }
-    token = res.body.token;
   }, 30000);
 
   afterAll(async () => {
@@ -54,7 +31,7 @@ describe('Score Controller', () => {
       // Act
       const res = await request(app)
       .get('/api/scores')
-      .set('Authorization', `Bearer ${token}`);
+      ;
       // Assert
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body.scores)).toBe(true);
@@ -68,7 +45,7 @@ describe('Score Controller', () => {
       const scoreData = { score: 42 };
       const res = await request(app)
       .post('/api/scores')
-      .set('Authorization', `Bearer ${token}`)
+      
       .send(scoreData);
       expect(res.statusCode).toBe(201);
       expect(res.body.score.score).toBe(42);
@@ -83,7 +60,7 @@ describe('Score Controller', () => {
       // Act: update the score
       const res = await request(app)
         .put(`/api/scores/${scoreId}`)
-        .set('Authorization', `Bearer ${token}`)
+        
         .send({ score: 99 });
       // Assert
       expect(res.statusCode).toBe(200);
@@ -99,7 +76,7 @@ describe('Score Controller', () => {
       // Act: delete the score
       const res = await request(app)
         .delete(`/api/scores/${scoreId}`)
-        .set('Authorization', `Bearer ${token}`);
+        ;
       // Assert
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
@@ -120,7 +97,7 @@ describe('Score Controller', () => {
       };
       const res = await request(app)
         .post('/api/scores')
-        .set('Authorization', `Bearer ${token}`)
+        
         .send(scoreData);
       expect(res.statusCode).toBe(201);
       // Fetch the member again

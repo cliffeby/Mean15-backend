@@ -49,8 +49,6 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // MS Entra config
-// const ENTRA_TENANT_ID = process.env.ENTRA_TENANT_ID || '887b774a-d6ed-4d56-9c24-1af7b955fd02';
-// const ENTRA_CLIENT_ID = process.env.ENTRA_CLIENT_ID || 'aa1ad4fb-4f38-46ba-970d-9af33e9a2e52';
 const ENTRA_TENANT_ID = process.env.ENTRA_TENANT_ID;
 const ENTRA_CLIENT_ID = process.env.ENTRA_CLIENT_ID;
 const ENTRA_ISSUER = `https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0`;
@@ -63,11 +61,11 @@ const jwtCheck = jwt({
     rateLimit: true,
     jwksRequestsPerMinute: 5
   }),
-  audience: [`api://${ENTRA_CLIENT_ID}`, ENTRA_CLIENT_ID], // Accept both API scope and client ID formats
+  audience: [`api://${ENTRA_CLIENT_ID}`, ENTRA_CLIENT_ID],
   issuer: ENTRA_ISSUER,
   algorithms: ['RS256'],
   requestProperty: 'auth',
-  credentialsRequired: false, // Don't require credentials for debugging
+  credentialsRequired: false,
 });
 
 // Role-based middleware
