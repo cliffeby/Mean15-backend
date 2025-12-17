@@ -10,7 +10,7 @@ const { extractAuthor } = require('../middleware/authorExtractor');
 // Read routes: any authenticated user
 router.get('/', getMembers);           // Get all members
 // Batch assign random USGAIndex to all members with missing/zero index
-router.post('/assign-random-index-batch', requireMinRole('admin'),extractAuthor, assignRandomIndexBatch);
+router.post('/assign-random-index-batch', requireMinRole('admin'), extractAuthor, assignRandomIndexBatch);
 router.get('/:id', getMember);         // Get single member
 
 // Write routes: admin only
