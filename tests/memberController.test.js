@@ -1,4 +1,4 @@
-jest.setTimeout(20000); // Increase timeout for async operations
+jest.setTimeout(5000); // Standard timeout for async operations
 // Member Controller Tests (Jest)
 
 const request = require('supertest');
@@ -17,7 +17,7 @@ describe('Member API', () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
   await mongoose.connect(testUri, {});
   console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
-  }, 30000);
+  }, 5000);
 
   afterAll(async () => {
     await mongoose.connection.close();
@@ -36,7 +36,7 @@ describe('Member API', () => {
     } else {
       throw new Error('Response does not contain an array of members');
     }
-  }, 30000);
+  }, 5000);
 
     it('should create a new member', async () => {
     const res = await request(app)
@@ -47,7 +47,7 @@ describe('Member API', () => {
     expect(res.body.member.firstName).toBe('Test');
     expect(res.body.member.fullName).toBe('Test User');
     memberId = res.body.member._id;
-  }, 30000);
+  }, 5000);
 
 
 
@@ -66,7 +66,7 @@ describe('Member API', () => {
     } else {
       throw new Error('Response does not contain member _id');
     }
-  }, 30000);
+  }, 5000);
   
     it('should create a member and set fullname/fullnameR', async () => {
       const res = await request(app)
@@ -91,7 +91,7 @@ describe('Member API', () => {
     expect(res.statusCode).toBe(200);
       expect(res.body.member.fullName).toBe('Jane Doe');
       expect(res.body.member.fullNameR).toBe('Doe, Jane');
-  }, 30000);
+  }, 5000);
 
   it('should update a member', async () => {
     const res = await request(app)
@@ -100,7 +100,7 @@ describe('Member API', () => {
       .send({ firstName: 'Updated' });
     expect(res.statusCode).toBe(200);
     expect(res.body.member.firstName).toBe('Updated');
-  }, 30000);
+  }, 5000);
 
   it('should delete a member', async () => {
     const res = await request(app)
@@ -108,7 +108,7 @@ describe('Member API', () => {
       ;
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-  }, 30000);
+  }, 5000);
 
     it('should reject USGAIndex above allowed max', async () => {
     const res = await request(app)
@@ -118,7 +118,7 @@ describe('Member API', () => {
     console.log('USGAIndex above max response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
-  }, 30000);
+  }, 5000);
 
   it('should reject USGAIndex below allowed min', async () => {
     const res = await request(app)
@@ -128,7 +128,7 @@ describe('Member API', () => {
     console.log('USGAIndex below min response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
-  }, 30000);
+  }, 5000);
 
   it('should reject non-numeric USGAIndex', async () => {
     const res = await request(app)
@@ -138,7 +138,7 @@ describe('Member API', () => {
     console.log('USGAIndex non-numeric response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
-  }, 30000);
+  }, 5000);
 
   it('should accept valid USGAIndex', async () => {
     const res = await request(app)
@@ -148,6 +148,6 @@ describe('Member API', () => {
     console.log('USGAIndex valid response:', res.body);
     expect(res.statusCode).toBe(201);
     expect(res.body.member.usgaIndex).toBe(12.5);
-  }, 30000);
+  }, 5000);
   
 });

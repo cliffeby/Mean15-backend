@@ -11,7 +11,7 @@ describe('HCap Controller', () => {
   beforeAll(async () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
     await mongoose.connect(testUri, {});
-  }, 30000);
+  }, 5000);
 
   afterAll(async () => {
     await mongoose.connection.close();

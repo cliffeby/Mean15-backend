@@ -18,7 +18,7 @@ describe('Score Controller', () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
   await mongoose.connect(testUri, {});
   console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
-  }, 30000);
+  }, 5000);
 
   afterAll(async () => {
     await mongoose.connection.close();

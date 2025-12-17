@@ -4,7 +4,7 @@ const Score = require('../models/Score');
 // @desc    Get all matches
 // @route   GET /api/matches
 // @access  Private
-exports.getMatches = async (req, res, next) => {
+exports.getMatches = async (_req, res, next) => {
   try {
     const matches = await Match.find().populate('scorecardId', 'name slope rating');
     
@@ -72,8 +72,7 @@ exports.getMatch = async (req, res, next) => {
 exports.createMatch = async (req, res, next) => {
   try {
     const matchData = {
-      ...req.body,
-      user: req.auth?.sub // Use Entra subject as user identifier
+      ...req.body, author: req.author
     };
     
     const match = await Match.create(matchData);
@@ -88,7 +87,7 @@ exports.createMatch = async (req, res, next) => {
 // @access  Private
 exports.updateMatch = async (req, res, next) => {
   try {
-    const match = await Match.findByIdAndUpdate(req.params.id, req.body, { 
+    const match = await Match.findByIdAndUpdate(req.params.id, { ...req.body, author: req.author }, { 
       new: true,
       runValidators: true
     }).populate('scorecardId', 'name slope rating');
@@ -212,7 +211,7 @@ exports.updateMatchStatus = async (req, res, next) => {
     const { status } = req.body;
     const match = await Match.findByIdAndUpdate(
       req.params.id, 
-      { status }, 
+      { status, author: req.author }, 
       { new: true, runValidators: true }
     ).populate('scorecardId', 'name slope rating');
     
@@ -236,7 +235,7 @@ exports.updateMatchScorecard = async (req, res, next) => {
     
     const match = await Match.findByIdAndUpdate(
       req.params.id, 
-      { scorecardId }, 
+      { scorecardId, author: req.author }, 
       { new: true }
     ).populate('scorecardId', 'name slope rating');
     

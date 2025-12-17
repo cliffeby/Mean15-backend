@@ -3,7 +3,7 @@ const Member = require('../models/Member');
 const Score = require('../models/Score');
 // const { extractAuthor } = require('../middleware/authorExtractor');
 
-exports.getMembers = async (req, res, next) => {
+exports.getMembers = async (_req, res, next) => {
   try {
     const members = await Member.find();
     res.json({ success: true, count: members.length, members });
@@ -36,7 +36,7 @@ exports.updateMember = async (req, res, next) => {
   try {
     const memberData = { ...req.body, author: req.author };
     const member = await Member.findByIdAndUpdate(req.params.id, memberData, { new: true });
-    if (!member) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!member) return res.status(404).json({ success: false, message: 'Member ot found' });
     res.json({ success: true, member });
   } catch (err) {
     next(err);

@@ -1,4 +1,4 @@
-jest.setTimeout(20000);
+jest.setTimeout(5000);
 
 const request = require('supertest');
 const app = require('../app');
@@ -13,7 +13,7 @@ describe('Scorecard API', () => {
   beforeAll(async () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
     await mongoose.connect(testUri, {});
-  }, 30000);
+  }, 5000);
 
   afterAll(async () => {
     await mongoose.connection.close();
@@ -31,7 +31,7 @@ describe('Scorecard API', () => {
     } else {
       throw new Error('Response does not contain an array of scorecards');
     }
-  }, 30000);
+  }, 5000);
 
   it('should create a new scorecard', async () => {
     const scorecardData = {
@@ -54,7 +54,7 @@ describe('Scorecard API', () => {
     } else {
       throw new Error('Response does not contain scorecard name');
     }
-  }, 30000);
+  }, 5000);
 
   it('should get a scorecard by ID', async () => {
     const res = await request(app)
@@ -68,7 +68,7 @@ describe('Scorecard API', () => {
     } else {
       throw new Error('Response does not contain scorecard _id');
     }
-  }, 30000);
+  }, 5000);
 
   it('should update a scorecard', async () => {
     const res = await request(app)
@@ -83,7 +83,7 @@ describe('Scorecard API', () => {
     } else {
       throw new Error('Response does not contain updated scorecard name');
     }
-  }, 30000);
+  }, 5000);
 
   it('should delete a scorecard', async () => {
     const res = await request(app)
@@ -97,5 +97,5 @@ describe('Scorecard API', () => {
     } else {
       throw new Error('Response does not contain success or deleted scorecard');
     }
-  }, 30000);
+  }, 5000);
 });

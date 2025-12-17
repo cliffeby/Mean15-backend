@@ -12,7 +12,7 @@ exports.getScorecards = async (req, res, next) => {
 exports.getScorecard = async (req, res, next) => {
   try {
     const scorecard = await Scorecard.findById(req.params.id);
-    if (!scorecard) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!scorecard) return res.status(404).json({ success: false, message: 'Scorecard not found' });
     res.json({ success: true, scorecard });
   } catch (err) {
     next(err);
@@ -31,7 +31,7 @@ exports.createScorecard = async (req, res, next) => {
 exports.updateScorecard = async (req, res, next) => {
   try {
     const scorecard = await Scorecard.findByIdAndUpdate(req.params.id, { ...req.body, author: req.author }, { new: true });
-    if (!scorecard) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!scorecard) return res.status(404).json({ success: false, message: 'Scorecard not found' });
     res.json({ success: true, scorecard });
   } catch (err) {
     next(err);
@@ -41,7 +41,7 @@ exports.updateScorecard = async (req, res, next) => {
 exports.deleteScorecard = async (req, res, next) => {
   try {
     const scorecard = await Scorecard.findByIdAndDelete(req.params.id);
-    if (!scorecard) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!scorecard) return res.status(404).json({ success: false, message: 'Scorecard not found' });
     res.json({ success: true });
   } catch (err) {
     next(err);
