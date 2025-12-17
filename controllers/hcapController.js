@@ -3,7 +3,7 @@ const Member = require('../models/Member');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 
-exports.getHcaps = async (req, res, next) => {
+exports.getHcaps = async (_req, res, next) => {
   try {
     const hcaps = await HCap.find()
       .populate('matchId', 'name datePlayed status')
@@ -19,7 +19,7 @@ exports.getHcaps = async (req, res, next) => {
 exports.getHcap = async (req, res, next) => {
   try {
     const hcap = await HCap.findById(req.params.id);
-    if (!hcap) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!hcap) return res.status(404).json({ success: false, message: 'HCap not found' });
     res.json({ success: true, hcap });
   } catch (err) {
     next(err);
@@ -47,22 +47,22 @@ exports.createHcap = async (req, res, next) => {
     hcapData.scorecardId = convertToObjectId(hcapData.scorecardId, 'scorecardId');
     hcapData.matchId = convertToObjectId(hcapData.matchId, 'matchId');
     hcapData.memberId = convertToObjectId(hcapData.memberId, 'memberId');
-    hcapData.userId = convertToObjectId(hcapData.userId, 'userId');
+    // hcapData.userId = convertToObjectId(hcapData.userId, 'userId');
 
-    // If a userId is provided, try to look up the user's name/email to populate a username field
-    if (hcapData.userId) {
-      try {
-        const user = await User.findById(hcapData.userId).select('name email');
-        if (user) {
-          // Prefer the user's `name` field from the User model. Fall back to email if name missing.
-          hcapData.user = user.name || user.email || hcapData.user || '';
-          // Keep username in sync for older clients that expect it
-          hcapData.username = hcapData.user;
-        }
-      } catch (uErr) {
-        console.warn('Failed to lookup user for HCap.username population:', uErr);
-      }
-    }
+    // // If a userId is provided, try to look up the user's name/email to populate a username field
+    // if (hcapData.userId) {
+    //   try {
+    //     const user = await User.findById(hcapData.userId).select('name email');
+    //     if (user) {
+    //       // Prefer the user's `name` field from the User model. Fall back to email if name missing.
+    //       hcapData.user = user.name || user.email || hcapData.user || '';
+    //       // Keep username in sync for older clients that expect it
+    //       hcapData.username = hcapData.user;
+    //     }
+    //   } catch (uErr) {
+    //     console.warn('Failed to lookup user for HCap.username population:', uErr);
+    //   }
+    // }
 
     const hcap = await HCap.create(hcapData);
 
@@ -109,21 +109,21 @@ exports.updateHcap = async (req, res, next) => {
     updateData.scorecardId = convertToObjectId(updateData.scorecardId, 'scorecardId');
     updateData.matchId = convertToObjectId(updateData.matchId, 'matchId');
     updateData.memberId = convertToObjectId(updateData.memberId, 'memberId');
-    updateData.userId = convertToObjectId(updateData.userId, 'userId');
+    // updateData.userId = convertToObjectId(updateData.userId, 'userId');
 
     // Try to populate username from userId when updating
-    if (updateData.userId) {
-      try {
-        const user = await User.findById(updateData.userId).select('name email');
-        if (user) {
-          // Use the User.name field as the canonical user string
-          updateData.user = user.name || user.email || updateData.user || '';
-          updateData.username = updateData.user;
-        }
-      } catch (uErr) {
-        console.warn('Failed to lookup user for HCap.username population (update):', uErr);
-      }
-    }
+    // if (updateData.userId) {
+    //   try {
+    //     const user = await User.findById(updateData.userId).select('name email');
+    //     if (user) {
+    //       // Use the User.name field as the canonical user string
+    //       updateData.user = user.name || user.email || updateData.user || '';
+    //       updateData.username = updateData.user;
+    //     }
+    //   } catch (uErr) {
+    //     console.warn('Failed to lookup user for HCap.username population (update):', uErr);
+    //   }
+    // }
 
     const hcap = await HCap.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!hcap) return res.status(404).json({ success: false, message: 'Not found' });

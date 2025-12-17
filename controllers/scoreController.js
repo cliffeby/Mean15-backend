@@ -48,7 +48,7 @@ exports.createScore = async (req, res, next) => {
     scoreData.scorecardId = convertToObjectId(scoreData.scorecardId, 'scorecardId');
     scoreData.matchId = convertToObjectId(scoreData.matchId, 'matchId');
     scoreData.memberId = convertToObjectId(scoreData.memberId, 'memberId');
-    scoreData.user = convertToObjectId(scoreData.user, 'user');
+    // scoreData.user = convertToObjectId(scoreData.user, 'user');
     
     const score = await Score.create(scoreData);
     
@@ -98,7 +98,7 @@ exports.updateScore = async (req, res, next) => {
     updateData.scorecardId = convertToObjectId(updateData.scorecardId, 'scorecardId');
     updateData.matchId = convertToObjectId(updateData.matchId, 'matchId');
     updateData.memberId = convertToObjectId(updateData.memberId, 'memberId');
-    updateData.user = convertToObjectId(updateData.user, 'user');
+    // updateData.user = convertToObjectId(updateData.user, 'user');
     
     const score = await Score.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!score) return res.status(404).json({ success: false, message: 'Not found' });
