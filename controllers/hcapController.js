@@ -1,6 +1,6 @@
 const HCap = require('../models/HCap');
 const Member = require('../models/Member');
-const User = require('../models/User');
+// const User = require('../models/User');
 const mongoose = require('mongoose');
 
 exports.getHcaps = async (_req, res, next) => {
@@ -28,7 +28,7 @@ exports.getHcap = async (req, res, next) => {
 
 exports.createHcap = async (req, res, next) => {
   try {
-    console.log('Creating HCap with data:', JSON.stringify(req.body, null, 2));
+    // console.log('Creating HCap with data:', JSON.stringify(req.body, null, 2));
 
     const hcapData = { ...req.body, author: req.author };
 
@@ -79,7 +79,7 @@ exports.createHcap = async (req, res, next) => {
       }
     }
 
-    console.log('Created HCap:', JSON.stringify(hcap, null, 2));
+    // console.log('Created HCap:', JSON.stringify(hcap, null, 2));
     res.status(201).json({ success: true, hcap });
   } catch (err) {
     console.error('Error creating HCap:', err);
@@ -89,8 +89,8 @@ exports.createHcap = async (req, res, next) => {
 
 exports.updateHcap = async (req, res, next) => {
   try {
-    console.log('Updating HCap with ID:', req.params.id);
-    console.log('Update data:', JSON.stringify(req.body, null, 2));
+    // console.log('Updating HCap with ID:', req.params.id);
+    // console.log('Update data:', JSON.stringify(req.body, null, 2));
 
     const updateData ={ ...req.body, author: req.author };
 
@@ -140,7 +140,7 @@ exports.updateHcap = async (req, res, next) => {
       }
     }
 
-    console.log('Updated HCap:', JSON.stringify(hcap, null, 2));
+    // console.log('Updated HCap:', JSON.stringify(hcap, null, 2));
     res.json({ success: true, hcap });
   } catch (err) {
     console.error('Error updating HCap:', err);

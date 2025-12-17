@@ -27,7 +27,7 @@ exports.getScore = async (req, res, next) => {
 
 exports.createScore = async (req, res, next) => {
   try {
-    console.log('Creating score with data:', JSON.stringify(req.body, null, 2));
+    // console.log('Creating score with data:', JSON.stringify(req.body, null, 2));
     
     // Ensure ObjectId fields are properly formatted
     const scoreData = { ...req.body, author: req.author };
@@ -66,7 +66,7 @@ exports.createScore = async (req, res, next) => {
       }
     }
     
-    console.log('Created score:', JSON.stringify(score, null, 2));
+    // console.log('Created score:', JSON.stringify(score, null, 2));
     res.status(201).json({ success: true, score });
   } catch (err) {
     console.error('Error creating score:', err);
@@ -76,8 +76,8 @@ exports.createScore = async (req, res, next) => {
 
 exports.updateScore = async (req, res, next) => {
   try {
-    console.log('Updating score with ID:', req.params.id);
-    console.log('Update data:', JSON.stringify(req.body, null, 2));
+    // console.log('Updating score with ID:', req.params.id);
+    // console.log('Update data:', JSON.stringify(req.body, null, 2));
     
     // Ensure ObjectId fields are properly formatted
     const updateData = { ...req.body, author: req.author };
@@ -117,7 +117,7 @@ exports.updateScore = async (req, res, next) => {
       }
     }
     
-    console.log('Updated score:', JSON.stringify(score, null, 2));
+    // console.log('Updated score:', JSON.stringify(score, null, 2));
     res.json({ success: true, score });
   } catch (err) {
     console.error('Error updating score:', err);

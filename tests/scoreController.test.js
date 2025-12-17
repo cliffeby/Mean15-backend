@@ -17,7 +17,7 @@ describe('Score Controller', () => {
     // Connect to test MongoDB
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
   await mongoose.connect(testUri, {});
-  console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
+  // console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
   }, 5000);
 
   afterAll(async () => {
@@ -35,7 +35,7 @@ describe('Score Controller', () => {
       // Assert
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body.scores)).toBe(true);
-      console.log('Scores returned:', res.body.scores);
+      // console.log('Scores returned:', res.body.scores);
     //   expect(res.body.scores.length).toBe(2);
     });
   });

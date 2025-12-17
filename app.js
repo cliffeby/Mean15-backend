@@ -79,11 +79,11 @@ function requireRole(role) {
 
 // Debug logging for all API requests
 app.use('/api', (req, res, next) => {
-  console.log(`\n--- API Request ---`);
-  console.log(`${req.method} ${req.path}`);
-  console.log('Authorization:', req.headers.authorization ? 'Present' : 'Missing');
+  // console.log(`\n--- API Request ---`);
+  // console.log(`${req.method} ${req.path}`);
+  // console.log('Authorization:', req.headers.authorization ? 'Present' : 'Missing');
   if (req.headers.authorization) {
-    console.log('Token preview:', req.headers.authorization.substring(0, 50) + '...');
+    // console.log('Token preview:', req.headers.authorization.substring(0, 50) + '...');
   }
   next();
 });

@@ -16,7 +16,7 @@ describe('Member API', () => {
     // Connect to test MongoDB
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
   await mongoose.connect(testUri, {});
-  console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
+  // console.log(`Connected to MongoDB: ${mongoose.connection.name}`);
   }, 5000);
 
   afterAll(async () => {
@@ -56,7 +56,7 @@ describe('Member API', () => {
     const res = await request(app)
       .get(`/api/members/${memberId}`)
       ;
-    console.log('Get member by ID response:', res.body);
+    // console.log('Get member by ID response:', res.body);
     expect(res.statusCode).toBe(200);
     // Accept either member._id or _id
     if (res.body.member && res.body.member._id) {
@@ -75,7 +75,7 @@ describe('Member API', () => {
         .send({ firstName: 'Jane', lastName: 'Doe', email: 'janedoe@example.com', user: 'user2' });
         expect(res.statusCode).toBe(201);
       // Check fullname and fullnameR in response
-      console.log('Create member response for fullname test:', res.body.member);
+      // console.log('Create member response for fullname test:', res.body.member);
       expect(res.body.member.fullName).toBe('Jane Doe');
       expect(res.body.member.fullNameR).toBe('Doe, Jane');
       memberId = res.body.member._id;
@@ -87,7 +87,7 @@ describe('Member API', () => {
       ;
     expect(res).toBeDefined();
     expect(res.body).toBeDefined();
-    console.log('Get member fullname response:', res.body);
+    // console.log('Get member fullname response:', res.body);
     expect(res.statusCode).toBe(200);
       expect(res.body.member.fullName).toBe('Jane Doe');
       expect(res.body.member.fullNameR).toBe('Doe, Jane');
@@ -115,7 +115,7 @@ describe('Member API', () => {
       .post('/api/members')
       
       .send({ firstName: 'Invalid', lastName: 'Index', email: 'invalidusga2@example.com', user: 'user2', usgaIndex: 60 });
-    console.log('USGAIndex above max response:', res.body);
+    // console.log('USGAIndex above max response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
   }, 5000);
@@ -125,7 +125,7 @@ describe('Member API', () => {
       .post('/api/members')
       
       .send({ firstName: 'Invalid', lastName: 'Index', email: 'invalidusga3@example.com', user: 'user2', usgaIndex: -15 });
-    console.log('USGAIndex below min response:', res.body);
+    // console.log('USGAIndex below min response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
   }, 5000);
@@ -135,7 +135,7 @@ describe('Member API', () => {
       .post('/api/members')
       
       .send({ firstName: 'Invalid', lastName: 'Index', email: 'invalidusga4@example.com', user: 'user2', usgaIndex: 'abc' });
-    console.log('USGAIndex non-numeric response:', res.body);
+    // console.log('USGAIndex non-numeric response:', res.body);
     expect(res.statusCode).toBe(400);
     expect(res.body.error || res.body.message).toMatch(/USGAIndex/i);
   }, 5000);
@@ -145,7 +145,7 @@ describe('Member API', () => {
       .post('/api/members')
       
       .send({ firstName: 'Valid', lastName: 'Index', email: 'validusga@example.com', user: 'user2', usgaIndex: 12.5 });
-    console.log('USGAIndex valid response:', res.body);
+    // console.log('USGAIndex valid response:', res.body);
     expect(res.statusCode).toBe(201);
     expect(res.body.member.usgaIndex).toBe(12.5);
   }, 5000);

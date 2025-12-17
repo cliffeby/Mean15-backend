@@ -9,16 +9,16 @@ exports.getMatches = async (_req, res, next) => {
     const matches = await Match.find().populate('scorecardId', 'name slope rating');
     
     // Debug: Check which matches have scorecards
-    console.log('=== MATCH SCORECARD DEBUG ===');
-    matches.forEach((match, index) => {
-      console.log(`Match ${index + 1}: ${match.name}`);
-      console.log(`  - ID: ${match._id}`);
-      console.log(`  - ScorecardId: ${match.scorecardId}`);
-      console.log(`  - Has Scorecard: ${!!match.scorecardId}`);
-      console.log(`  - Scorecard Type: ${typeof match.scorecardId}`);
-      console.log('---');
-    });
-    console.log('=== END DEBUG ===');
+    // console.log('=== MATCH SCORECARD DEBUG ===');
+    // matches.forEach((match, index) => {
+    //   console.log(`Match ${index + 1}: ${match.name}`);
+    //   console.log(`  - ID: ${match._id}`);
+    //   console.log(`  - ScorecardId: ${match.scorecardId}`);
+    //   console.log(`  - Has Scorecard: ${!!match.scorecardId}`);
+    //   console.log(`  - Scorecard Type: ${typeof match.scorecardId}`);
+    //   console.log('---');
+    // });
+    // console.log('=== END DEBUG ===');
     
     res.json({ success: true, count: matches.length, matches });
   } catch (err) {
@@ -31,10 +31,10 @@ exports.getMatches = async (_req, res, next) => {
 // @access  Private
 exports.getMatch = async (req, res, next) => {
   try {
-    console.log('=== GET MATCH DEBUG ===');
-    console.log('Requested match ID:', req.params.id);
-    console.log('ID type:', typeof req.params.id);
-    console.log('ID length:', req.params.id?.length);
+    // console.log('=== GET MATCH DEBUG ===');
+    // console.log('Requested match ID:', req.params.id);
+    // console.log('ID type:', typeof req.params.id);
+    // console.log('ID length:', req.params.id?.length);
     
     // First get the raw match without population to see what's actually stored
     const rawMatch = await Match.findById(req.params.id);
@@ -51,17 +51,17 @@ exports.getMatch = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Match not found' });
     }
     
-    console.log('Populated match scorecardId:', match.scorecardId);
-    console.log('Populated match scorecardId type:', typeof match.scorecardId);
-    console.log('Is scorecardId populated object?', match.scorecardId && typeof match.scorecardId === 'object');
-    console.log('Sending response with match');
-    console.log('=== END GET MATCH DEBUG ===');
+    // console.log('Populated match scorecardId:', match.scorecardId);
+    // console.log('Populated match scorecardId type:', typeof match.scorecardId);
+    // console.log('Is scorecardId populated object?', match.scorecardId && typeof match.scorecardId === 'object');
+    // console.log('Sending response with match');
+    // console.log('=== END GET MATCH DEBUG ===');
     
     res.json({ success: true, match });
   } catch (err) {
-    console.error('Error fetching match:', err);
-    console.error('Error details:', err.message);
-    console.error('Stack:', err.stack);
+    // console.error('Error fetching match:', err);
+    // console.error('Error details:', err.message);
+    // console.error('Stack:', err.stack);
     next(err);
   }
 };
