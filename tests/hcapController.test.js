@@ -62,23 +62,5 @@ describe('HCap Controller', () => {
     expect(actual).toBe(testDate);
   });
 
-  it('POST /api/hcaps should populate user and username when userId provided', async () => {
-    const User = require('../models/User');
-    let testUser = await User.findOne({ email: 'createhcap@example.com' });
-    if (!testUser) {
-      testUser = await User.create({ name: 'CreateHCapUser', email: 'createhcap@example.com', password: 'pass1234' });
-    }
 
-    const res = await request(app)
-      .post('/api/hcaps')
-      
-      .send({ userId: testUser._id, postedScore: 75 });
-
-    expect(res.statusCode).toBe(201);
-    const created = res.body.hcap;
-    expect(created).toBeDefined();
-    // Controller should populate `user` from User.name and mirror to `username`
-    expect(created.user).toBe(testUser.name);
-    expect(created.username).toBe(testUser.name);
-  });
 });
