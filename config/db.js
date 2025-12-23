@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/auto_loan_app';
+  const uri = process.env.MONGO_URI_ATLAS;
   await mongoose.connect(uri, {
     // useNewUrlParser: true, (removed, deprecated)
     // useUnifiedTopology: true, (removed, deprecated)
