@@ -66,6 +66,16 @@ memberSchema.virtual('fullNameR')
     this.set({ lastName, firstName });
   });
 
+  memberSchema.virtual('name')
+  .get(function () {
+    return `${this.lastName}, ${this.firstName}`;
+  })
+  .set(function (v) {
+    const lastName = v.substring(0, v.indexOf(' '));
+    const firstName = v.substring(v.indexOf(' ') + 1);
+    this.set({ lastName, firstName });
+  });
+
 memberSchema.set('toJSON', { virtuals: true });
 
 module.exports = mongoose.model('Member', memberSchema);

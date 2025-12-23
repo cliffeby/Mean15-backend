@@ -5,7 +5,7 @@ const Score = require('../models/Score');
 
 exports.getMembers = async (_req, res, next) => {
   try {
-    const members = await Member.find();
+    const members = await Member.find().lean({ virtuals: true });
     res.json({ success: true, count: members.length, members });
   } catch (err) {
     next(err);
@@ -14,7 +14,7 @@ exports.getMembers = async (_req, res, next) => {
 
 exports.getMember = async (req, res, next) => {
   try {
-    const member = await Member.findById(req.params.id);
+    const member = await Member.findById(req.params.id).lean({ virtuals: true });
     if (!member) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, member });
   } catch (err) {
@@ -26,7 +26,9 @@ exports.createMember = async (req, res, next) => {
   try {
     const memberData = { ...req.body, author: req.author };
     const member = await Member.create(memberData);
-    res.status(201).json({ success: true, member });
+    // Fetch with virtuals for response
+    const memberWithVirtuals = await Member.findById(member._id).lean({ virtuals: true });
+    res.status(201).json({ success: true, member: memberWithVirtuals });
   } catch (err) {
     next(err);
   }
@@ -37,7 +39,9 @@ exports.updateMember = async (req, res, next) => {
     const memberData = { ...req.body, author: req.author };
     const member = await Member.findByIdAndUpdate(req.params.id, memberData, { new: true });
     if (!member) return res.status(404).json({ success: false, message: 'Member ot found' });
-    res.json({ success: true, member });
+    // Fetch with virtuals for response
+    const memberWithVirtuals = await Member.findById(member._id).lean({ virtuals: true });
+    res.json({ success: true, member: memberWithVirtuals });
   } catch (err) {
     next(err);
   }
@@ -48,7 +52,7 @@ exports.deleteMember = async (req, res, next) => {
     const memberId = req.params.id;
     
     // Check for associated scores
-    const associatedScores = await Score.find({ memberId: memberId });
+    const associatedScores = await Score.find({ memberId: memberId }).lean();
     
     if (associatedScores.length > 0) {
       // Check if force delete was requested - handle undefined req.body
@@ -99,12 +103,14 @@ exports.deleteMember = async (req, res, next) => {
     // Now delete the member
     const member = await Member.findByIdAndDelete(memberId);
     if (!member) return res.status(404).json({ success: false, message: 'Not found' });
-    
+    // Return deleted member with virtuals if needed
+    const memberWithVirtuals = await Member.findOne({ _id: memberId }).lean({ virtuals: true });
     res.json({ 
       success: true, 
       message: 'Member deleted successfully',
       scoresAffected: associatedScores.length,
-      action: associatedScores.length > 0 ? (req.body.action || 'none') : 'none'
+      action: associatedScores.length > 0 ? (req.body.action || 'none') : 'none',
+      deletedMember: memberWithVirtuals
     });
   } catch (err) {
     next(err);
@@ -183,7 +189,9 @@ exports.removeDuplicateEmails = async (req, res, next) => {
       for (const member of members) {
         assignRandomUSGAIndex(member);
         await member.save();
-        updated.push({ _id: member._id, usgaIndex: member.usgaIndex });
+        // Fetch with virtuals after save
+        const memberWithVirtuals = await require('../models/Member').findById(member._id).lean({ virtuals: true });
+        updated.push({ _id: member._id, usgaIndex: member.usgaIndex, name: memberWithVirtuals?.name });
       }
       res.json({ updatedCount: updated.length, updated });
     } catch (err) {

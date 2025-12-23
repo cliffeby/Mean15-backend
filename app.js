@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
+const auditLogger = require('./middleware/auditLogger');
 const { expressjwt: jwt } = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 
@@ -92,13 +93,14 @@ app.use('/api', (req, res, next) => {
 app.use('/api/auth', authRoutes);
 
 // Mount protected API routes with JWT check
-app.use('/api/members', jwtCheck, memberRoutes);
-app.use('/api/users', jwtCheck, userRoutes);
-app.use('/api/scorecards', jwtCheck, scorecardRoutes);
-app.use('/api/scores', jwtCheck, scoreRoutes);
-app.use('/api/matches', jwtCheck, matchRoutes);
-app.use('/api/hcaps', jwtCheck, hcapRoutes);
-app.use('/api/orphans', jwtCheck, orphanRoutes);
+// Add auditLogger after JWT check for all protected API routes
+app.use('/api/members', jwtCheck, auditLogger, memberRoutes);
+app.use('/api/users', jwtCheck, auditLogger, userRoutes);
+app.use('/api/scorecards', jwtCheck, auditLogger, scorecardRoutes);
+app.use('/api/scores', jwtCheck, auditLogger, scoreRoutes);
+app.use('/api/matches', jwtCheck, auditLogger, matchRoutes);
+app.use('/api/hcaps', jwtCheck, auditLogger, hcapRoutes);
+app.use('/api/orphans', jwtCheck, auditLogger, orphanRoutes);
 
 // Example: app.use('/api/admin', requireRole('admin'));
 
