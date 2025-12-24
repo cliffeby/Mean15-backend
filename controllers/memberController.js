@@ -49,10 +49,17 @@ exports.updateMember = async (req, res, next) => {
 
 exports.deleteMember = async (req, res, next) => {
   try {
+    console.log('DELETE /api/members/:id called with params:', req.params, 'body:', req.body);
     const memberId = req.params.id;
     
     // Check for associated scores
-    const associatedScores = await Score.find({ memberId: memberId }).lean();
+    let associatedScores = [];
+    try {
+      associatedScores = await Score.find({ memberId: memberId }).lean();
+    } catch (scoreErr) {
+      console.error('Error fetching associated scores:', scoreErr);
+      return res.status(500).json({ success: false, message: 'Error fetching associated scores', error: scoreErr.message });
+    }
     
     if (associatedScores.length > 0) {
       // Check if force delete was requested - handle undefined req.body
@@ -65,10 +72,10 @@ exports.deleteMember = async (req, res, next) => {
           conflictType: 'scores',
           conflictCount: associatedScores.length,
           scores: associatedScores.map(score => ({
-            id: score._id,
-            name: score.name,
-            datePlayed: score.datePlayed,
-            score: score.score
+            id: score?._id || null,
+            name: score && typeof score.name !== 'undefined' ? score.name : '',
+            datePlayed: score?.datePlayed || null,
+            score: typeof score?.score !== 'undefined' ? score.score : null
           })),
           options: {
             nullify: 'Remove member reference from scores (scores become orphaned)',
@@ -101,18 +108,30 @@ exports.deleteMember = async (req, res, next) => {
     }
 
     // Now delete the member
-    const member = await Member.findByIdAndDelete(memberId);
+    let member;
+    try {
+      member = await Member.findByIdAndDelete(memberId);
+    } catch (deleteErr) {
+      console.error('Error deleting member:', deleteErr);
+      return res.status(500).json({ success: false, message: 'Error deleting member', error: deleteErr.message });
+    }
     if (!member) return res.status(404).json({ success: false, message: 'Not found' });
     // Return deleted member with virtuals if needed
-    const memberWithVirtuals = await Member.findOne({ _id: memberId }).lean({ virtuals: true });
+    let memberWithVirtuals = null;
+    try {
+      memberWithVirtuals = await Member.findOne({ _id: memberId }).lean({ virtuals: true });
+    } catch (virtualErr) {
+      console.error('Error fetching deleted member virtuals:', virtualErr);
+    }
     res.json({ 
       success: true, 
       message: 'Member deleted successfully',
       scoresAffected: associatedScores.length,
-      action: associatedScores.length > 0 ? (req.body.action || 'none') : 'none',
+      action: associatedScores.length > 0 ? (req.body?.action || 'none') : 'none',
       deletedMember: memberWithVirtuals
     });
   } catch (err) {
+    console.error('Unhandled error in deleteMember:', err);
     next(err);
   }
 };

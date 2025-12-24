@@ -24,12 +24,13 @@ async function writeAuditLogToBlob(logEntry) {
 function auditLogger(req, _res, next) {
  
   if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+    const body = req.body || {};
     const logEntry = {
       time: new Date().toISOString(),
       method: req.method,
       route: req.originalUrl,
-      name: req.body.name,
-      author: req.body.author?.name || null,
+      name: typeof body.name !== 'undefined' ? body.name : null,
+      author: body.author?.name || null,
     };
     writeAuditLogToBlob(logEntry).catch(err => {
       console.error('Azure Blob audit log error:', err);
