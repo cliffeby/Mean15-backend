@@ -22,6 +22,7 @@ const scoreRoutes = require('./routes/scoreRoutes');
 const matchRoutes = require('./routes/matchRoutes');
 const hcapRoutes = require('./routes/hcapRoutes');
 const orphanRoutes = require('./routes/orphanRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 
 const app = express();
 
@@ -101,6 +102,7 @@ app.use('/api/scores', jwtCheck, auditLogger, scoreRoutes);
 app.use('/api/matches', jwtCheck, auditLogger, matchRoutes);
 app.use('/api/hcaps', jwtCheck, auditLogger, hcapRoutes);
 app.use('/api/orphans', jwtCheck, auditLogger, orphanRoutes);
+app.use('/api/audit', jwtCheck, requireRole('admin'), auditRoutes);
 
 // Example: app.use('/api/admin', requireRole('admin'));
 

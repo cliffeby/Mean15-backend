@@ -21,13 +21,14 @@ async function writeAuditLogToBlob(logEntry) {
 }
 
 
-function auditLogger(req, res, next) {
+function auditLogger(req, _res, next) {
+ 
   if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
     const logEntry = {
       time: new Date().toISOString(),
       method: req.method,
       route: req.originalUrl,
-      name: req.body.lastName +", "+ req.body.firstName || null,
+      name: req.body.name,
       author: req.body.author?.name || null,
     };
     writeAuditLogToBlob(logEntry).catch(err => {
