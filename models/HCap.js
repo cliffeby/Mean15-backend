@@ -23,7 +23,7 @@ const HCapSchema = new Schema(
         message: "USGA Index for today must have at most one decimal place",
       },
     },
-    handicap: Number,
+    handicapDifferential: Number,
     scoreId: {
       type: Schema.Types.ObjectId,
       ref: "Score",
