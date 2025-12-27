@@ -3,5 +3,5 @@
 
 module.exports = {
   defaultLeague: 'Premier', // Default league option for new users and system-wide settings
-  // Add other environment settings here
+  // Add other environment-specific settings here
 };
