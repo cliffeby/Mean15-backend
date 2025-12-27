@@ -26,4 +26,19 @@ jest.mock('jwks-rsa', () => ({
 // Mock uuid to avoid ESM import issues in Jest
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-v4')
-}));
+}), { virtual: true });
+
+// Mock @azure/storage-blob to avoid installation requirement in tests
+jest.mock('@azure/storage-blob', () => ({
+  BlobServiceClient: {
+    fromConnectionString: jest.fn(() => ({
+      getContainerClient: jest.fn(() => ({
+        exists: jest.fn().mockResolvedValue(true),
+        createIfNotExists: jest.fn().mockResolvedValue({ succeeded: true }),
+        getBlockBlobClient: jest.fn(() => ({
+          upload: jest.fn().mockResolvedValue({ requestId: 'mock-request-id' })
+        }))
+      }))
+    }))
+  }
+}), { virtual: true });
