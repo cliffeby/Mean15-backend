@@ -21,3 +21,8 @@ jest.mock('express-jwt', () => ({
 jest.mock('jwks-rsa', () => ({
   expressJwtSecret: () => 'mocked-secret'
 }));
+
+// Mock uuid to avoid ESM import issues in Jest
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid-v4')
+}));

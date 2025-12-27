@@ -75,10 +75,12 @@ describe('Member API', () => {
         .send({ firstName: 'Jane', lastName: 'Doe', email: 'janedoe@example.com', user: 'user2' });
         expect(res.statusCode).toBe(201);
       // Check fullname and fullnameR in response
-      // console.log('Create member response for fullname test:', res.body.member);
+      console.log('Create member response for fullname test:', res.body);
       expect(res.body.member.fullName).toBe('Jane Doe');
       expect(res.body.member.fullNameR).toBe('Doe, Jane');
-      memberId = res.body.member._id;
+      memberId = res.body.member._id || res.body.member.id;
+      console.log('Stored memberId:', memberId);
+      expect(memberId).toBeDefined();
     }, 30000);
   
    it('should get member and verify fullname/fullnameR', async () => {

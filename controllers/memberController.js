@@ -14,7 +14,7 @@ exports.getMembers = async (_req, res, next) => {
 
 exports.getMember = async (req, res, next) => {
   try {
-    const member = await Member.findById(req.params.id).lean({ virtuals: true });
+    const member = await Member.findById(req.params.id);
     if (!member) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, member });
   } catch (err) {
@@ -26,9 +26,8 @@ exports.createMember = async (req, res, next) => {
   try {
     const memberData = { ...req.body, author: req.author };
     const member = await Member.create(memberData);
-    // Fetch with virtuals for response
-    const memberWithVirtuals = await Member.findById(member._id).lean({ virtuals: true });
-    res.status(201).json({ success: true, member: memberWithVirtuals });
+    // Return the document with virtuals (toJSON includes virtuals)
+    res.status(201).json({ success: true, member });
   } catch (err) {
     next(err);
   }
@@ -38,10 +37,9 @@ exports.updateMember = async (req, res, next) => {
   try {
     const memberData = { ...req.body, author: req.author };
     const member = await Member.findByIdAndUpdate(req.params.id, memberData, { new: true });
-    if (!member) return res.status(404).json({ success: false, message: 'Member ot found' });
-    // Fetch with virtuals for response
-    const memberWithVirtuals = await Member.findById(member._id).lean({ virtuals: true });
-    res.json({ success: true, member: memberWithVirtuals });
+    if (!member) return res.status(404).json({ success: false, message: 'Member not found' });
+    // Return the document with virtuals (toJSON includes virtuals)
+    res.json({ success: true, member });
   } catch (err) {
     next(err);
   }
