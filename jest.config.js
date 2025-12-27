@@ -9,4 +9,9 @@ module.exports = {
     'middleware/**/*.js',
   ],
   coveragePathIgnorePatterns: ['/node_modules/', '/tests/'],
+  extensionsToTreatAsEsm: ['.js'],
+  transform: {},
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
 };
