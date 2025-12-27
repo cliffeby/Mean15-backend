@@ -22,17 +22,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend
           npm install
 
       - name: Run tests
         run: |
-          cd backend
           npm test
 
       - name: Zip backend for deployment
         run: |
-          cd backend
           zip -r ../backend.zip .
 
       - name: Deploy to Azure Web App
