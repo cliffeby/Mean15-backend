@@ -9,7 +9,7 @@ module.exports = {
     'middleware/**/*.js',
   ],
   coveragePathIgnorePatterns: ['/node_modules/', '/tests/'],
-  extensionsToTreatAsEsm: ['.js'],
+  // extensionsToTreatAsEsm removed; Jest infers .js module type from package.json
   transform: {},
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
