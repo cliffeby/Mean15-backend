@@ -2,8 +2,9 @@
 // This keeps production code clean while allowing tests to run
 
 // Mock express-jwt to inject test auth data
+// Use doMock to avoid needing the actual module installed
 jest.mock('express-jwt', () => ({
-  expressjwt: () => {
+  expressjwt: jest.fn(() => {
     return (req, res, next) => {
       // Inject mock Entra auth claims for tests
       req.auth = {
@@ -14,13 +15,13 @@ jest.mock('express-jwt', () => ({
       };
       next();
     };
-  }
-}));
+  })
+}), { virtual: true });
 
 // Mock jwks-rsa since we're not using real Entra tokens in tests
 jest.mock('jwks-rsa', () => ({
-  expressJwtSecret: () => 'mocked-secret'
-}));
+  expressJwtSecret: jest.fn(() => 'mocked-secret')
+}), { virtual: true });
 
 // Mock uuid to avoid ESM import issues in Jest
 jest.mock('uuid', () => ({
