@@ -37,7 +37,11 @@ describe('requireMinRole middleware', () => {
     requireMinRole('admin')(req, res, next);
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Requires at least admin role' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Requires at least admin role',
+      roles: ['user'],
+      details: { roles: ['user'] }
+    });
   });
 
   it('denies access for no roles', () => {
