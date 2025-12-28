@@ -80,7 +80,7 @@ function requireRole(role) {
 }
 
 // Debug logging for all API requests
-app.use('/api', (req, res, next) => {
+app.use('/api', (req, _res, next) => {
   // console.log(`\n--- API Request ---`);
   // console.log(`${req.method} ${req.path}`);
   // console.log('Authorization:', req.headers.authorization ? 'Present' : 'Missing');
@@ -93,16 +93,23 @@ app.use('/api', (req, res, next) => {
 // Mount auth routes first (no JWT check)
 app.use('/api/auth', authRoutes);
 
-// Mount protected API routes with JWT check
+// Global: require at least 'user' role for all /api routes except /api/auth
+const { requireMinRole } = require('./middleware/roleHierarchy');
+app.use('/api', jwtCheck, (req, res, next) => {
+  // Allow /api/auth without role check
+  if (req.path.startsWith('/auth')) return next();
+  return requireMinRole('user')(req, res, next);
+});
+
 // Add auditLogger after JWT check for all protected API routes
-app.use('/api/members', jwtCheck, auditLogger, memberRoutes);
-app.use('/api/users', jwtCheck, auditLogger, userRoutes);
-app.use('/api/scorecards', jwtCheck, auditLogger, scorecardRoutes);
-app.use('/api/scores', jwtCheck, auditLogger, scoreRoutes);
-app.use('/api/matches', jwtCheck, auditLogger, matchRoutes);
-app.use('/api/hcaps', jwtCheck, auditLogger, hcapRoutes);
-app.use('/api/orphans', jwtCheck, auditLogger, orphanRoutes);
-app.use('/api/audit', jwtCheck, requireRole('admin'), auditRoutes);
+app.use('/api/members', auditLogger, memberRoutes);
+app.use('/api/users', auditLogger, userRoutes);
+app.use('/api/scorecards', auditLogger, scorecardRoutes);
+app.use('/api/scores', auditLogger, scoreRoutes);
+app.use('/api/matches', auditLogger, matchRoutes);
+app.use('/api/hcaps', auditLogger, hcapRoutes);
+app.use('/api/orphans', auditLogger, orphanRoutes);
+app.use('/api/audit', requireRole('admin'), auditRoutes);
 
 // Example: app.use('/api/admin', requireRole('admin'));
 
