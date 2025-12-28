@@ -24,6 +24,23 @@ const hcapRoutes = require('./routes/hcapRoutes');
 const orphanRoutes = require('./routes/orphanRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 
+
+// Ensure logs directory exists (for Azure and local)
+const fs = require('fs');
+const path = require('path');
+const logsDir = path.join(__dirname, 'logs');
+try {
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+    // Optionally log creation
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[startup] Created logs directory:', logsDir);
+    }
+  }
+} catch (err) {
+  console.error('[startup] Failed to create logs directory:', err);
+}
+
 const app = express();
 
 app.use(helmet());
