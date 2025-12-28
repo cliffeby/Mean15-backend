@@ -3,18 +3,33 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 const { v4: uuidv4 } = require('uuid');
 
 // Get connection string and container name from environment variables
-const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const AUDIT_CONTAINER_NAME = process.env.AUDIT_CONTAINER_NAME;
+
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_CONNECTION_STRING.trim();
+const AUDIT_CONTAINER_NAME = process.env.AUDIT_CONTAINER_NAME && process.env.AUDIT_CONTAINER_NAME.trim();
 
 let blobServiceClient;
 let containerClient;
-if (AZURE_STORAGE_CONNECTION_STRING) {
-  blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
-  containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
+if (!AZURE_STORAGE_CONNECTION_STRING) {
+  console.error('[Azure AuditLogger] Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Audit logs will NOT be written to Azure Blob Storage.');
+} else {
+  try {
+    blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+    containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
+  } catch (err) {
+    console.error('[Azure AuditLogger] Invalid AZURE_STORAGE_CONNECTION_STRING:', err.message);
+    containerClient = null;
+  }
 }
 
+
 async function writeAuditLogToBlob(logEntry) {
-  if (!containerClient) return;
+  if (!containerClient) {
+    // Optionally, log to console for local/dev visibility
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[Azure AuditLogger] Audit log not written to Azure Blob. Log entry:', logEntry);
+    }
+    return;
+  }
   const blobName = `audit-${new Date().toISOString()}-${uuidv4()}.json`;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   await blockBlobClient.upload(JSON.stringify(logEntry), Buffer.byteLength(JSON.stringify(logEntry)));
