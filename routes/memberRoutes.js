@@ -14,7 +14,11 @@ router.post('/assign-random-index-batch', requireMinRole('admin'), extractAuthor
 router.get('/:id', getMember);         // Get single member
 
 // Write routes: admin only
-router.post('/', requireMinRole('admin'), extractAuthor, createMember);        // Create new member (editor or admin)
+// Debug: log req.auth for create attempts
+router.post('/', (req, res, next) => {
+	console.log('DEBUG req.auth on create member:', req.auth);
+	next();
+}, requireMinRole('admin'), extractAuthor, createMember);        // Create new member (editor or admin)
 
 router.put('/:id', requireMinRole('admin'), extractAuthor, updateMember);      // Update member (editor or admin)
 router.delete('/:id', requireMinRole('admin'), deleteMember);   // Delete member (admin only)
