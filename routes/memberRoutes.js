@@ -16,7 +16,7 @@ router.get('/:id', getMember);         // Get single member
 // Write routes: admin only
 // Debug: log req.auth for create attempts
 router.post('/', (req, res, next) => {
-	console.log('DEBUG req.auth on create member:', req.auth);
+	console.log('DEBUG req.auth on create member2:', req.auth);
 	next();
 }, requireMinRole('admin'), extractAuthor, createMember);        // Create new member (editor or admin)
 
