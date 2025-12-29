@@ -1,4 +1,10 @@
+# Ignore everything in this directory except .gitkeep
+*
+!.gitkeep
+
 node_modules
 .env
 logs
 coverage
+
+# Ignore OS generated files
