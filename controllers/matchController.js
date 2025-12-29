@@ -208,13 +208,21 @@ exports.getMatchesByStatus = async (req, res, next) => {
 // @access  Private
 exports.updateMatchStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
+    console.log(`Updating match : ${JSON.stringify(req.body)}`);
+    const { status, name, author } = req.body;
+    const updateData = { status, author: req.author };
+    
+    // Include name if provided in request for audit logging
+    if (name) {
+      updateData.name = name;
+    }
+    
     const match = await Match.findByIdAndUpdate(
       req.params.id, 
-      { status, author: req.author }, 
+      updateData, 
       { new: true, runValidators: true }
-    ).populate('scorecardId', 'name slope rating');
-    
+    ).populate('scorecardId', 'name slope rating author');
+    console.log(`Updating match2 : ${JSON.stringify(req.body)}`);
     if (!match) {
       return res.status(404).json({ success: false, message: 'Match not found' });
     }

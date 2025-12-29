@@ -51,11 +51,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
+// if (process.env.NODE_ENV === 'development') {
+//   app.use(morgan('dev', {
+//     skip: function (req) {
+//       return req.path === '/api/audit/logs';
+//     }
+//   }));
+// } else {
+//   app.use(morgan('combined'));
+// }
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

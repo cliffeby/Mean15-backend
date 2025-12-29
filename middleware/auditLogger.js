@@ -45,7 +45,7 @@ function auditLogger(req, _res, next) {
       method: req.method,
       route: req.originalUrl,
       name: typeof body.name !== 'undefined' ? body.name : null,
-      author: body.author?.name || null,
+      author: req.author?.name || req.author?.email || body.author?.name || null,
     };
     writeAuditLogToBlob(logEntry).catch(err => {
       console.error('Azure Blob audit log error:', err);
