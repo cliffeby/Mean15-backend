@@ -37,20 +37,34 @@ async function writeAuditLogToBlob(logEntry) {
 
 
 function auditLogger(req, _res, next) {
- 
-  if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
+
+  if (["POST", "PUT", "PATCH"].includes(req.method)) {
     const body = req.body || {};
     const logEntry = {
       time: new Date().toISOString(),
       method: req.method,
       route: req.originalUrl,
-      name: typeof body.name !== 'undefined' ? body.name : null,
-      author: req.author?.name || req.author?.email || body.author?.name || null,
+      name:body.name ??
+        (body.lastName && body.firstName ? `${body.lastName},${body.firstName}` : req.query.name ?? null),
+      author: req.author?.name || req.author?.email || body.author?.name || req.query.author || null,
     };
     writeAuditLogToBlob(logEntry).catch(err => {
       console.error('Azure Blob audit log error:', err);
     });
-  }
+    } else if (["DELETE"].includes(req.method)) {
+      const logEntry = {
+        time: new Date().toISOString(),
+        method: req.method,
+        route: req.originalUrl,
+        name: req.query.name || null,
+        author: req.author?.name || req.author?.email || req.query.author || null,
+      };
+      writeAuditLogToBlob(logEntry).catch(err => {
+        console.error('Azure Blob audit log error:', err);
+      });
+    }
+
+
   next();
 }
 

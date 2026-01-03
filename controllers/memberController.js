@@ -47,7 +47,7 @@ exports.updateMember = async (req, res, next) => {
 
 exports.deleteMember = async (req, res, next) => {
   try {
-    console.log('DELETE /api/members/:id called with params:', req.params, 'body:', req.body);
+    console.log('DELETE /api/members/:id called with params:', req.params)
     const memberId = req.params.id;
     
     // Check for associated scores

@@ -40,8 +40,13 @@ exports.updateScorecard = async (req, res, next) => {
 
 exports.deleteScorecard = async (req, res, next) => {
   try {
+    // const { name, author } = req.query;
+    // Optionally: log, audit, or validate name/author here
+    // Example: console.log('Deleting scorecard', req.params.id, name, author);
     const scorecard = await Scorecard.findByIdAndDelete(req.params.id);
     if (!scorecard) return res.status(404).json({ success: false, message: 'Scorecard not found' });
+    // Optionally: audit log
+    // if (name || author) { /* audit logic here */ }
     res.json({ success: true });
   } catch (err) {
     next(err);

@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    logger.error(`GET /api/users requested by: ${JSON.stringify(req.user)}`);
+    logger.info(`GET /api/users requested by: ${JSON.stringify(req.user)}`);
     const users = await User.find().select('-password');
     res.json({ success: true, users });
   } catch (err) {

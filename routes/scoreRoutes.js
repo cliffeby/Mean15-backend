@@ -21,8 +21,8 @@ router.get('/member/:memberId', getScoresByMember); // Get scores by member
 router.get('/match/:matchId', getScoresByMatch);   // Get scores by match
 router.get('/scorecard/:scorecardId', getScoresByScorecard); // Get scores by scorecard
 router.get('/:id', getScore);         // Get single score
-router.post('/', requireMinRole('admin'), createScore); // Create new score (editor or admin)
-router.put('/:id', requireMinRole('admin'), updateScore); // Update score (editor or admin)
-router.delete('/:id', requireMinRole('admin'), deleteScore); // Delete score (admin only)
+router.post('/', requireMinRole('admin'), extractAuthor, createScore); // Create new score (editor or admin)
+router.put('/:id', requireMinRole('admin'), extractAuthor, updateScore); // Update score (editor or admin)
+router.delete('/:id', requireMinRole('admin'), extractAuthor,  deleteScore); // Delete score (admin only)
 
 module.exports = router;

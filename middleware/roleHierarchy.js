@@ -7,7 +7,7 @@ function requireMinRole(minRole) {
   return (req, res, next) => {
     // Diagnostic logging for Azure issues
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[requireMinRole] req.auth:', JSON.stringify(req.auth));
+      // console.log('[requireMinRole] req.auth:', JSON.stringify(req.auth));
     }
     const userRoles = Array.isArray(req.auth?.roles) ? req.auth.roles : (req.auth?.role ? [req.auth.role] : []);
     if (!req.auth) {

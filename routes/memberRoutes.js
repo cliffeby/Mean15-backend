@@ -15,13 +15,13 @@ router.get('/:id', getMember);         // Get single member
 
 // Write routes: admin only
 // Debug: log req.auth for create attempts
-router.post('/', (req, res, next) => {
-	console.log('DEBUG req.auth on create member2:', req.auth);
+router.post('/', (_req, _res, next) => {
+
 	next();
 }, requireMinRole('admin'), extractAuthor, createMember);        // Create new member (editor or admin)
 
 router.put('/:id', requireMinRole('admin'), extractAuthor, updateMember);      // Update member (editor or admin)
-router.delete('/:id', requireMinRole('admin'), deleteMember);   // Delete member (admin only)
+router.delete('/:id', requireMinRole('admin'), extractAuthor, deleteMember);   // Delete member (admin only)
 router.delete('/duplicates/remove', requireMinRole('admin'), removeDuplicateEmails);  // Remove duplicate emails
 
 
