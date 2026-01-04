@@ -46,8 +46,8 @@ jobs:
           
       - name: Ensure logs/.gitkeep exists
         run: |
-          mkdir -p ../backend/logs
-          touch backend/logs/.gitkeep
+          mkdir -p logs
+          touch ../logs/.gitkeep
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
