@@ -44,16 +44,16 @@ jobs:
         run: |
           mkdir -p logs
           touch logs/.gitkeep
+        working-directory: backend
 
       - name: Zip backend for deployment
         run: |
-          zip -r ../backend.zip . -x "*.git*" -x "node_modules/*"
-          
-
+          zip -r backend.zip . -x "*.git*" -x "node_modules/*"
+        working-directory: backend
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: backend.zip
+          package: backend/backend.zip
