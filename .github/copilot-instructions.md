@@ -26,3 +26,6 @@ When generating code for the backend:
 - When generating test code, use Jest as the testing framework.
 - Every record creation or update should log the user who performed the action, using userId references and string representations where appropriate.
 ## Additional Notes
+- Authentication and authorization are handled via JWT tokens. Ensure that protected routes verify the token and check user roles as needed.
+- User is deprecated. Use Author to refer to users in the system.
+- Follow best practices for security, including input validation and sanitization.

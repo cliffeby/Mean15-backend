@@ -40,6 +40,11 @@ jobs:
         run: |
           npm test
 
+      - name: Ensure logs/.gitkeep exists
+        run: |
+          mkdir -p logs
+          touch logs/.gitkeep
+
       - name: Zip backend for deployment
         run: |
           zip -r backend.zip .
