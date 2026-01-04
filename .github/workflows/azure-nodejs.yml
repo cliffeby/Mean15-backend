@@ -40,14 +40,16 @@ jobs:
         run: |
           npm test
 
+      - name: Ensure logs/.gitkeep exists
+        run: |
+          mkdir -p logs
+          touch logs/.gitkeep
+
       - name: Zip backend for deployment
         run: |
           zip -r ../backend.zip . -x "*.git*" -x "node_modules/*"
           
-      - name: Ensure logs/.gitkeep exists
-        run: |
-          mkdir -p logs
-          touch ../logs/.gitkeep
+
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
