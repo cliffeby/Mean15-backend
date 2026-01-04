@@ -43,9 +43,10 @@ jobs:
       - name: Zip backend for deployment
         run: |
           zip -r ../backend.zip . -x "*.git*" -x "node_modules/*"
+          
       - name: Ensure logs/.gitkeep exists
         run: |
-          mkdir -p backend/logs
+          mkdir -p ../backend/logs
           touch backend/logs/.gitkeep
 
       - name: Deploy to Azure Web App
