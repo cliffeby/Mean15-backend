@@ -8,6 +8,7 @@ const {
   deleteScore,
   getScoresByMember,
   getScoresByMatch,
+  deleteScoresByMatch,
   getScoresByScorecard
 } = require('../controllers/scoreController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
@@ -23,6 +24,10 @@ router.get('/scorecard/:scorecardId', getScoresByScorecard); // Get scores by sc
 router.get('/:id', getScore);         // Get single score
 router.post('/', requireMinRole('admin'), extractAuthor, createScore); // Create new score (editor or admin)
 router.put('/:id', requireMinRole('admin'), extractAuthor, updateScore); // Update score (editor or admin)
+// Delete all scores for a match (admin only) - must come before the :id route
+router.delete('/match/:matchId', requireMinRole('admin'), extractAuthor, deleteScoresByMatch);
+
+// Delete single score by id (admin only)
 router.delete('/:id', requireMinRole('admin'), extractAuthor,  deleteScore); // Delete score (admin only)
 
 module.exports = router;

@@ -166,3 +166,19 @@ exports.getScoresByScorecard = async (req, res, next) => {
     next(err);
   }
 };
+
+// Delete all scores for a given match
+exports.deleteScoresByMatch = async (req, res, next) => {
+  try {
+    const matchId = req.params.matchId;
+    if (!matchId) return res.status(400).json({ success: false, message: 'matchId required' });
+
+    // Ensure matchId is a valid ObjectId where appropriate
+    // Mongoose will handle invalid ids, but we can be explicit
+    const result = await Score.deleteMany({ matchId });
+
+    return res.json({ success: true, deletedCount: result.deletedCount });
+  } catch (err) {
+    next(err);
+  }
+};
