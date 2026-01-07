@@ -1,5 +1,15 @@
 // server.js  
-require('dotenv').config();
+// Load environment variables from .env when available. In some deployment
+// environments (e.g. App Service build pipeline) the dependency may not be
+// installed — guard so the process doesn't crash.
+try {
+  require('dotenv').config();
+} catch (err) {
+  // If dotenv isn't installed we still want the app to start; platform
+  // environment variables should be used instead.
+  // eslint-disable-next-line no-console
+  console.warn('dotenv not found — skipping .env load');
+}
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const logger = require('./utils/logger');
