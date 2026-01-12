@@ -9,14 +9,26 @@ const AUDIT_CONTAINER_NAME = process.env.AUDIT_CONTAINER_NAME && process.env.AUD
 
 let blobServiceClient;
 let containerClient;
+
+function isValidAzureConnectionString(conn) {
+  if (!conn || typeof conn !== 'string') return false;
+  // must contain DefaultEndpointsProtocol and AccountName and AccountKey
+  const hasProtocol = /DefaultEndpointsProtocol=(https|http)/i.test(conn);
+  const hasAccount = /AccountName=[^;]+/i.test(conn);
+  const hasKey = /AccountKey=[^;]+/i.test(conn);
+  return hasProtocol && hasAccount && hasKey;
+}
+
 if (!AZURE_STORAGE_CONNECTION_STRING) {
-  console.error('[Azure AuditLogger] Missing AZURE_STORAGE_CONNECTION_STRING environment variable. Audit logs will NOT be written to Azure Blob Storage.');
+  console.warn('[Azure AuditLogger] AZURE_STORAGE_CONNECTION_STRING not set. Audit logs will NOT be written to Azure Blob Storage.');
+} else if (!isValidAzureConnectionString(AZURE_STORAGE_CONNECTION_STRING)) {
+  console.error('[Azure AuditLogger] Invalid AZURE_STORAGE_CONNECTION_STRING format. Audit logs will NOT be written to Azure Blob Storage.');
 } else {
   try {
     blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
     containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
   } catch (err) {
-    console.error('[Azure AuditLogger] Invalid AZURE_STORAGE_CONNECTION_STRING:', err.message);
+    console.error('[Azure AuditLogger] Error creating BlobServiceClient:', err.message);
     containerClient = null;
   }
 }
