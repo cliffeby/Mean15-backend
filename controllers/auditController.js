@@ -1,13 +1,31 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
-const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const AUDIT_CONTAINER_NAME = process.env.AUDIT_CONTAINER_NAME;
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING && process.env.AZURE_STORAGE_CONNECTION_STRING.trim();
+const AUDIT_CONTAINER_NAME = process.env.AUDIT_CONTAINER_NAME && process.env.AUDIT_CONTAINER_NAME.trim();
+
+function isValidAzureConnectionString(conn) {
+  if (!conn || typeof conn !== 'string') return false;
+  const hasProtocol = /DefaultEndpointsProtocol=(https|http)/i.test(conn) || /^https:\/\/.+blob\.core\.windows\.net/i.test(conn);
+  const hasAccount = /AccountName=[^;]+/i.test(conn);
+  const hasKey = /AccountKey=[^;]+/i.test(conn);
+  return (hasProtocol && hasAccount && hasKey) || hasProtocol;
+}
 
 exports.getAuditLogs = async (_req, res, next) => {
   try {
     if (!AZURE_STORAGE_CONNECTION_STRING || !AUDIT_CONTAINER_NAME) {
-      return res.status(500).json({ error: 'Azure credentials missing' });
+      return res.status(500).json({ error: 'Azure storage configuration missing (AZURE_STORAGE_CONNECTION_STRING or AUDIT_CONTAINER_NAME).' });
     }
-    const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+    if (!isValidAzureConnectionString(AZURE_STORAGE_CONNECTION_STRING)) {
+      console.error('[auditController] Invalid AZURE_STORAGE_CONNECTION_STRING:', AZURE_STORAGE_CONNECTION_STRING);
+      return res.status(500).json({ error: 'Invalid Azure storage connection string.' });
+    }
+    let blobServiceClient;
+    try {
+      blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
+    } catch (err) {
+      console.error('[auditController] Error creating BlobServiceClient:', err.message);
+      return res.status(500).json({ error: 'Failed to initialize Azure Blob client.' });
+    }
     const containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
     const logs = [];
     for await (const blob of containerClient.listBlobsFlat()) {
