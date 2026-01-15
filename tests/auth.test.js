@@ -38,7 +38,7 @@ describe('auth middleware', () => {
     
     await auth(req, res, next);
     
-    expect(jwt.verify).toHaveBeenCalledWith('validtoken', 'testsecret');
+    expect(jwt.verify).toHaveBeenCalledWith('validtoken', 'testsecret', {"clockTolerance": 300});
     expect(User.findById).toHaveBeenCalledWith('123');
     expect(mockSelect).toHaveBeenCalledWith('-password');
     expect(next).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('auth middleware', () => {
     User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
     await auth(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Invalid token.' });
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Invalid token: user not found.' });
     expect(next).not.toHaveBeenCalled();
   });
 });
