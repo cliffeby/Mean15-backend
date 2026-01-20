@@ -6,6 +6,7 @@ const orphanHandler = require('../utils/orphanHandler');
 exports.getOrphanReport = async (req, res, next) => {
   try {
     const report = await orphanHandler.generateOrphanReport();
+    console.log('Orphan Report generated:', report);
     res.json({
       success: true,
       report
@@ -49,6 +50,7 @@ exports.cleanupOrphans = async (req, res, next) => {
 exports.findOrphans = async (req, res, next) => {
   try {
     const orphans = await orphanHandler.findOrphanedScores();
+    console.log('Orphan Report generated:', orphans);
     res.json({
       success: true,
       orphans

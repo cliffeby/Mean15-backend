@@ -109,66 +109,23 @@ exports.deleteMatch = async (req, res, next) => {
   try {
     const matchId = req.params.id;
     
-    // Check for associated scores
-    const associatedScores = await Score.find({ matchId: matchId });
-    
-    if (associatedScores.length > 0) {
-      // Check if force delete was requested - handle undefined req.body
-      const { force, action } = req.body || {};
-      
-      if (!force) {
-        return res.status(409).json({ 
-          success: false, 
-          message: 'Cannot delete match with associated scores',
-          conflictType: 'scores',
-          conflictCount: associatedScores.length,
-          scores: associatedScores.map(score => ({
-            id: score._id,
-            name: score.name,
-            datePlayed: score.datePlayed,
-            score: score.score
-          })),
-          options: {
-            nullify: 'Remove match reference from scores (scores remain)',
-            delete: 'Delete match and all associated scores',
-            cancel: 'Cancel deletion'
-          }
-        });
-      }
-      
-      // Handle forced deletion with specified action
-      if (action === 'nullify') {
-        // Set matchId to null for all associated scores
-        await Score.updateMany({ matchId: matchId }, { matchId: null });
-        console.log(`Nullified matchId for ${associatedScores.length} scores`);
-      } else if (action === 'delete') {
-        // Delete all associated scores
-        await Score.deleteMany({ matchId: matchId });
-        console.log(`Deleted ${associatedScores.length} associated scores`);
-      } else if (action) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid action. Use "nullify" or "delete"'
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: 'Action required when force=true. Use "nullify" or "delete"'
-        });
-      }
-    }
+    // Delete all Scores associated with this Match
+    const deletedScores = await Score.deleteMany({ matchId });
+    // Delete all HCaps associated with this Match
+    const HCap = require('../models/HCap');
+    const deletedHCaps = await HCap.deleteMany({ matchId });
 
     // Now delete the match
     const match = await Match.findByIdAndDelete(matchId);
     if (!match) {
       return res.status(404).json({ success: false, message: 'Match not found' });
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'Match deleted successfully',
-      scoresAffected: associatedScores.length,
-      action: associatedScores.length > 0 ? (req.body.action || 'none') : 'none'
+      scoresDeleted: deletedScores.deletedCount,
+      hcapsDeleted: deletedHCaps.deletedCount
     });
   } catch (err) {
     next(err);

@@ -50,59 +50,37 @@ exports.deleteMember = async (req, res, next) => {
     console.log('DELETE /api/members/:id called with params:', req.params)
     const memberId = req.params.id;
     
-    // Check for associated scores
+    // Check for associated Scores, Matches, and HCaps
+    const Score = require('../models/Score');
+    const Match = require('../models/Match');
+    const HCap = require('../models/HCap');
+
     let associatedScores = [];
+    let associatedMatches = [];
+    let associatedHCaps = [];
     try {
       associatedScores = await Score.find({ memberId: memberId }).lean();
-    } catch (scoreErr) {
-      console.error('Error fetching associated scores:', scoreErr);
-      return res.status(500).json({ success: false, message: 'Error fetching associated scores', error: scoreErr.message });
+      associatedMatches = await Match.find({ lineUps: memberId }).lean();
+      associatedHCaps = await HCap.find({ memberId: memberId }).lean();
+    } catch (assocErr) {
+      console.error('Error fetching associated records:', assocErr);
+      return res.status(500).json({ success: false, message: 'Error fetching associated records', error: assocErr.message });
     }
-    
-    if (associatedScores.length > 0) {
-      // Check if force delete was requested - handle undefined req.body
-      const { force, action } = req.body || {};
-      
-      if (!force) {
-        return res.status(409).json({ 
-          success: false, 
-          message: 'Cannot delete member with associated scores',
-          conflictType: 'scores',
-          conflictCount: associatedScores.length,
-          scores: associatedScores.map(score => ({
-            id: score?._id || null,
-            name: score && typeof score.name !== 'undefined' ? score.name : '',
-            datePlayed: score?.datePlayed || null,
-            score: typeof score?.score !== 'undefined' ? score.score : null
-          })),
-          options: {
-            nullify: 'Remove member reference from scores (scores become orphaned)',
-            delete: 'Delete member and all associated scores',
-            cancel: 'Cancel deletion'
-          }
-        });
-      }
-      
-      // Handle forced deletion with specified action
-      if (action === 'nullify') {
-        // Set memberId to null for all associated scores
-        await Score.updateMany({ memberId: memberId }, { memberId: null });
-        console.log(`Nullified memberId for ${associatedScores.length} scores`);
-      } else if (action === 'delete') {
-        // Delete all associated scores
-        await Score.deleteMany({ memberId: memberId });
-        console.log(`Deleted ${associatedScores.length} associated scores`);
-      } else if (action) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid action. Use "nullify" or "delete"'
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: 'Action required when force=true. Use "nullify" or "delete"'
-        });
-      }
+
+    if (associatedScores.length > 0 || associatedMatches.length > 0 || associatedHCaps.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'Cannot delete member with associated records',
+        conflictType: 'associations',
+        scoresCount: associatedScores.length,
+        matchesCount: associatedMatches.length,
+        hcapsCount: associatedHCaps.length,
+        details: {
+          scores: associatedScores.map(score => ({ id: score._id, name: score.name, datePlayed: score.datePlayed })),
+          matches: associatedMatches.map(match => ({ id: match._id, name: match.name, datePlayed: match.datePlayed })),
+          hcaps: associatedHCaps.map(hcap => ({ id: hcap._id, name: hcap.name, datePlayed: hcap.datePlayed }))
+        }
+      });
     }
 
     // Now delete the member
@@ -114,18 +92,15 @@ exports.deleteMember = async (req, res, next) => {
       return res.status(500).json({ success: false, message: 'Error deleting member', error: deleteErr.message });
     }
     if (!member) return res.status(404).json({ success: false, message: 'Not found' });
-    // Return deleted member with virtuals if needed
     let memberWithVirtuals = null;
     try {
       memberWithVirtuals = await Member.findOne({ _id: memberId }).lean({ virtuals: true });
     } catch (virtualErr) {
       console.error('Error fetching deleted member virtuals:', virtualErr);
     }
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Member deleted successfully',
-      scoresAffected: associatedScores.length,
-      action: associatedScores.length > 0 ? (req.body?.action || 'none') : 'none',
       deletedMember: memberWithVirtuals
     });
   } catch (err) {

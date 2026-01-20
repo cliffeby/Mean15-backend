@@ -24,7 +24,15 @@ When generating code for the backend:
 - Ensure that all new code is covered by appropriate unit tests.
 - When applicable, include integration tests for API endpoints.
 - When generating test code, use Jest as the testing framework.
-- Every record creation or update should log the user who performed the action, using userId references and string representations where appropriate.
+- Every record creation or update should log the user who performed the action, using authorId references and string representations where appropriate.
+## Orphaned Records
+- When deleting records, ensure that related orphaned records are handled appropriately. For example, when a Match is deleted, consider how to handle their associated Scores and HCaps.
+    Use the following guidelines:
+    - If a Match is deleted, also delete all Scores and HCaps associated with that Match.
+    - If a Score is deleted, also delete the HCap associated with that Score. 
+    - If a Scorecard is deleted, no further action is needed.
+    - Do not allow deletion of a Member if they have associated Matches, HCaps, or Scores. Instead, return an error indicating that the Member cannot be deleted due to existing associations.
+    - Try not to leave orphaned records in the database.
 ## Additional Notes
 - Authentication and authorization are handled via JWT tokens. Ensure that protected routes verify the token and check user roles as needed.
 - User is deprecated. Use Author to refer to users in the system.

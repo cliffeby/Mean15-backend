@@ -127,9 +127,19 @@ exports.updateScore = async (req, res, next) => {
 
 exports.deleteScore = async (req, res, next) => {
   try {
+    // Delete the associated HCap first
+    const HCap = require('../models/HCap');
+    const deletedHCap = await HCap.findOneAndDelete({ scoreId: req.params.id });
+
+    // Now delete the Score
     const score = await Score.findByIdAndDelete(req.params.id);
     if (!score) return res.status(404).json({ success: false, message: 'Not found' });
-    res.json({ success: true, message: 'Score deleted' });
+
+    res.json({
+      success: true,
+      message: 'Score deleted',
+      hcapDeleted: !!deletedHCap
+    });
   } catch (err) {
     next(err);
   }

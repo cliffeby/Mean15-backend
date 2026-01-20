@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "lint": "eslint . --fix",
     "test": "jest --runInBand --verbose --detectOpenHandles",
+    "debug": "node --inspect-brk server.js",
     "smoke:hcap": "node scripts/smoke-hcap.js",
     "migrate:backfill-hcap-user": "node scripts/backfill-hcap-user.js"
   },
