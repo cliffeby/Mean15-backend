@@ -87,16 +87,105 @@ exports.createMatch = async (req, res, next) => {
 // @access  Private
 exports.updateMatch = async (req, res, next) => {
   try {
-    const match = await Match.findByIdAndUpdate(req.params.id, { ...req.body, author: req.author }, { 
-      new: true,
-      runValidators: true
-    }).populate('scorecardId', 'name slope rating');
-    
-    if (!match) {
+    // Fetch the previous match BEFORE updating
+    let previousMatch;
+    try {
+      previousMatch = await Match.findById(req.params.id);
+      console.log('[updateMatch] previousMatch:', previousMatch);
+    } catch (err) {
+      console.error('[updateMatch] Error fetching previousMatch:', err);
+      return next(err);
+    }
+
+    // Now update the match
+    let updatedMatch;
+    try {
+      updatedMatch = await Match.findByIdAndUpdate(req.params.id, { ...req.body, author: req.author }, {
+        new: true,
+        runValidators: true
+      }).populate('scorecardId', 'name slope rating');
+      console.log('[updateMatch] updatedMatch:', updatedMatch);
+    } catch (err) {
+      console.error('[updateMatch] Error updating match:', err);
+      return next(err);
+    }
+
+    if (!updatedMatch) {
+      console.error('[updateMatch] No updatedMatch found for id:', req.params.id);
       return res.status(404).json({ success: false, message: 'Match not found' });
     }
-    
-    res.json({ success: true, match });
+
+    const prevLineUps = (previousMatch.lineUps || []).map(id => String(id));
+    const newLineUps = (updatedMatch.lineUps || []).map(id => String(id));
+    const removedPlayers = prevLineUps.filter(id => !newLineUps.includes(id));
+    console.log('[updateMatch] req.params.id:', req.params.id);
+    console.log('[updateMatch] prevLineUps:', prevLineUps);
+    console.log('[updateMatch] newLineUps:', newLineUps);
+    console.log('[updateMatch] removedPlayers:', removedPlayers);
+    if (removedPlayers.length > 0) {
+      const Score = require('../models/Score');
+      const HCap = require('../models/HCap');
+      for (const memberId of removedPlayers) {
+        // Only match by memberId and matchId, do not include orphaned or matchId: null in query
+        // Robustly match memberId as ObjectId or string
+        // Find all scores for this member, regardless of matchId (to catch any with matchId already null)
+        const scoreQuery = {
+          $or: [
+            { matchId: req.params.id },
+            { matchId: null }
+          ],
+          $expr: {
+            $or: [
+              { $eq: ["$memberId", memberId] },
+              { $eq: [ { $toString: "$memberId" }, memberId ] }
+            ]
+          }
+        };
+        const hcapQuery = {
+          matchId: req.params.id,
+          $expr: {
+            $or: [
+              { $eq: ["$memberId", memberId] },
+              { $eq: [ { $toString: "$memberId" }, memberId ] }
+            ]
+          }
+        };
+        console.log('[updateMatch] Score update query:', scoreQuery);
+        try {
+          // Defensive: ensure no accidental deletion
+          const scoresToUpdate = await Score.find(scoreQuery);
+          if (scoresToUpdate.length === 0) {
+            console.warn('[updateMatch] No Score records found to update for memberId:', memberId);
+          } else {
+            const scoreResult = await Score.updateMany(
+              scoreQuery,
+              { $set: { orphaned: true, matchId: null } }
+            );
+            console.log('[updateMatch] Score update result:', scoreResult);
+            // Log the updated Score documents for verification
+            const updatedScores = await Score.find({
+              memberId,
+              orphaned: true,
+              matchId: null
+            });
+            console.log('[updateMatch] Updated Score docs:', updatedScores);
+            // Delete associated HCap record for this member and match
+            try {
+              const hcapDeleteResult = await HCap.deleteMany(hcapQuery);
+              console.log('[updateMatch] Deleted HCap records for orphaned score:', hcapDeleteResult);
+            } catch (err) {
+              console.error('[updateMatch] Error deleting HCap for orphaned score:', err);
+            }
+          }
+        } catch (err) {
+          console.error('[updateMatch] Error updating Score:', err);
+        }
+      }
+    } else {
+      console.log('[updateMatch] No removed players detected. No orphaning performed.');
+    }
+
+    res.json({ success: true, match: updatedMatch });
   } catch (err) {
     next(err);
   }

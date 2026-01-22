@@ -53,6 +53,7 @@ const HCapSchema = new Schema(
     user: { type: String },
     // Backwards-compatible alias
     username: { type: String },
+    orphaned: { type: Boolean, default: false },
   },
   {
     // collection: 'scores',

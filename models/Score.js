@@ -83,6 +83,7 @@ const ScoreSchema = new Schema(
       email: { type: String },
       name: { type: String }
     },
+    orphaned: { type: Boolean, default: false },
   },
   {
     collection: 'scores',

@@ -6,43 +6,51 @@ const Scorecard = require('../models/Scorecard');
 const User = require('../models/User');
 
 class OrphanHandler {
-    /**
-     * Find all orphaned HCaps (referencing missing members, matches, or scorecards)
-     */
-    async findOrphanedHcaps() {
-      const hcapOrphans = [];
-      const hcaps = await HCap.find({});
-      for (const hcap of hcaps) {
-        console.log(`Checking HCap:`, hcap);
-        // Check for orphaned member
-        if (hcap.memberId) {
-          const member = await Member.findById(hcap.memberId);
-          if (!member) {
-            hcapOrphans.push({ hcap, reason: 'Missing member' });
-            continue;
-          }
-        }
-        // Check for orphaned match
-        if (hcap.matchId) {
-          const match = await Match.findById(hcap.matchId);
-          
-          if (!match) {
-            hcapOrphans.push({ hcap, reason: 'Missing match' });
-            continue;
-          }
-        }
-        // Check for orphaned scorecard
-        if (hcap.scorecardId) {
-          const scorecard = await Scorecard.findById(hcap.scorecardId);
-          if (!scorecard) {
-            hcapOrphans.push({ hcap, reason: 'Missing scorecard' });
-            continue;
-          }
-        }
+  /**
+   * Find all orphaned HCaps (referencing missing members, matches, or scorecards)
+   */
+  async findOrphanedHcaps() {
+    const hcapOrphans = [];
+    const hcaps = await HCap.find({});
+    for (const hcap of hcaps) {
+      let matchMissing = false;
+      let scoreMissing = false;
+      // Debug log
+      // console.log('[OrphanHandler] HCap:', hcap._id, 'matchId:', hcap.matchId, 'scoreId:', hcap.scoreId);
+      // Check matchId: null/undefined or missing Match
+      let matchIdToCheck = null;
+      if (hcap.matchId == null) {
+        matchMissing = true;
+      } else if (typeof hcap.matchId === 'object' && hcap.matchId._id) {
+        matchIdToCheck = hcap.matchId._id;
+      } else {
+        matchIdToCheck = hcap.matchId;
       }
-      return hcapOrphans;
+      if (!matchMissing && matchIdToCheck) {
+        const match = await Match.findById(String(matchIdToCheck));
+        if (!match) matchMissing = true;
+      }
+      // Check scoreId: null/undefined or missing Score
+      let scoreIdToCheck = null;
+      if (hcap.scoreId == null) {
+        scoreMissing = true;
+      } else if (typeof hcap.scoreId === 'object' && hcap.scoreId._id) {
+        scoreIdToCheck = hcap.scoreId._id;
+      } else {
+        scoreIdToCheck = hcap.scoreId;
+      }
+      if (!scoreMissing && scoreIdToCheck) {
+        const score = await Score.findById(String(scoreIdToCheck));
+        if (!score) scoreMissing = true;
+      }
+      // Only orphaned if BOTH are missing or invalid
+      if (matchMissing && scoreMissing) {
+        hcapOrphans.push({ hcap, reason: 'No valid matchId or scoreId' });
+      }
     }
-  
+    return hcapOrphans;
+  }
+
   /**
    * Find all orphaned scores and categorize them
    */
@@ -51,152 +59,63 @@ class OrphanHandler {
       matchOrphans: [],
       memberOrphans: [],
       scorecardOrphans: [],
-      userOrphans: []
+      userOrphans: [],
+      intentionalOrphans: [] // scores intentionally orphaned (orphaned: true, matchId: null)
     };
-
-    // Find all scores
-    class OrphanHandler {
-      // Find orphaned HCaps (referencing missing members, matches, or scorecards)
-      async findOrphanedHcaps() {
-        const hcapOrphans = [];
-        const hcaps = await HCap.find({});
-        for (const hcap of hcaps) {
-          if (hcap.memberId && !(await Member.findById(hcap.memberId))) {
-            hcapOrphans.push({ hcap, reason: 'Missing member' });
-            continue;
-          }
-          if (hcap.matchId && !(await Match.findById(hcap.matchId))) {
-            hcapOrphans.push({ hcap, reason: 'Missing match' });
-            continue;
-          }
-          if (hcap.scorecardId && !(await Scorecard.findById(hcap.scorecardId))) {
-            hcapOrphans.push({ hcap, reason: 'Missing scorecard' });
-            continue;
-          }
-        }
-        return hcapOrphans;
+    const scores = await Score.find({});
+    for (const score of scores) {
+      if (score.matchId && !(await Match.findById(score.matchId))) {
+        orphans.matchOrphans.push(score);
       }
-
-      // Find orphaned Scores (referencing missing members, matches, or scorecards)
-      async findOrphanedScores() {
-        const orphans = {
-          matchOrphans: [],
-          memberOrphans: [],
-          scorecardOrphans: [],
-          userOrphans: []
-        };
-        const scores = await Score.find({});
-        for (const score of scores) {
-          if (score.matchId && !(await Match.findById(score.matchId))) {
-            orphans.matchOrphans.push(score);
-          }
-          if (score.memberId && !(await Member.findById(score.memberId))) {
-            orphans.memberOrphans.push(score);
-          }
-          if (score.scorecardId && !(await Scorecard.findById(score.scorecardId))) {
-            orphans.scorecardOrphans.push(score);
-          }
-        }
-        return orphans;
+      if (score.memberId && !(await Member.findById(score.memberId))) {
+        orphans.memberOrphans.push(score);
       }
-
-      // Simple report of orphaned records
-      async generateOrphanReport() {
-        return {
-          hcapOrphans: await this.findOrphanedHcaps(),
-          scoreOrphans: await this.findOrphanedScores()
-        };
+      if (score.scorecardId && !(await Scorecard.findById(score.scorecardId))) {
+        orphans.scorecardOrphans.push(score);
+      }
+      // Add intentionally orphaned scores
+      if (score.orphaned === true && (score.matchId === null || score.matchId === undefined)) {
+        orphans.intentionalOrphans.push(score);
       }
     }
-
-    module.exports = new OrphanHandler();
-    const allOrphans = [
-      ...orphans.matchOrphans,
-      ...orphans.memberOrphans,
-      ...orphans.scorecardOrphans,
-      ...orphans.userOrphans
-    ];
-
-    // Remove duplicates
-    const uniqueOrphans = allOrphans.filter((score, index, self) =>
-      index === self.findIndex(s => s._id.toString() === score._id.toString())
-    );
-
-    for (const score of uniqueOrphans) {
-      await Score.findByIdAndDelete(score._id);
-      results.deleted++;
-    }
-  }
-
-  /**
-   * Set orphaned references to null
-   */
-  async nullifyOrphanedReferences(orphans, results) {
-    // Handle match orphans
-    for (const score of orphans.matchOrphans) {
-      await Score.findByIdAndUpdate(score._id, { matchId: null });
-      results.nullified++;
-    }
-
-    // Handle member orphans
-    for (const score of orphans.memberOrphans) {
-      await Score.findByIdAndUpdate(score._id, { memberId: null });
-      results.nullified++;
-    }
-
-    // Handle scorecard orphans
-    for (const score of orphans.scorecardOrphans) {
-      await Score.findByIdAndUpdate(score._id, { scorecardId: null });
-      results.nullified++;
-    }
-
-    // Handle user orphans - don't nullify, but could reassign to admin
-    for (const score of orphans.userOrphans) {
-      // Find an admin user to reassign to
-      const adminUser = await User.findOne({ role: 'admin' });
-      if (adminUser) {
-        await Score.findByIdAndUpdate(score._id, { user: adminUser._id });
-        results.cleaned++;
-      }
-    }
-  }
-
-  /**
-   * Preserve orphaned scores but add metadata
-   */
-  async preserveOrphanedScores(orphans, results) {
-    // Could add a field to mark orphaned status
-    // This would require schema changes
-    
-    for (const score of orphans.matchOrphans) {
-      await Score.findByIdAndUpdate(score._id, { 
-        matchId: null,
-        // Could add: orphanedMatch: true, orphanedAt: new Date()
-      });
-      results.preserved = (results.preserved || 0) + 1;
-    }
-    // Similar for other orphan types...
+    return orphans;
   }
 
   /**
    * Generate report of orphaned records
    */
   async generateOrphanReport() {
-    const orphans = await this.findOrphanedScores();
-    
+    let orphans;
+    try {
+      orphans = await this.findOrphanedScores();
+    } catch (err) {
+      console.error('[generateOrphanReport] Error in findOrphanedScores:', err);
+      orphans = {};
+    }
+    // Defensive: ensure orphans object and arrays exist
+    orphans = orphans || {};
+    const matchOrphans = Array.isArray(orphans.matchOrphans) ? orphans.matchOrphans : [];
+    const memberOrphans = Array.isArray(orphans.memberOrphans) ? orphans.memberOrphans : [];
+    const scorecardOrphans = Array.isArray(orphans.scorecardOrphans) ? orphans.scorecardOrphans : [];
+    const userOrphans = Array.isArray(orphans.userOrphans) ? orphans.userOrphans : [];
+    const intentionalOrphans = Array.isArray(orphans.intentionalOrphans) ? orphans.intentionalOrphans : [];
     return {
       summary: {
-        totalOrphans: orphans.matchOrphans.length + 
-                     orphans.memberOrphans.length + 
-                     orphans.scorecardOrphans.length + 
-                     orphans.userOrphans.length,
-        matchOrphans: orphans.matchOrphans.length,
-        memberOrphans: orphans.memberOrphans.length,
-        scorecardOrphans: orphans.scorecardOrphans.length,
-        userOrphans: orphans.userOrphans.length
+        totalOrphans: matchOrphans.length + memberOrphans.length + scorecardOrphans.length + userOrphans.length + intentionalOrphans.length,
+        matchOrphans: matchOrphans.length,
+        memberOrphans: memberOrphans.length,
+        scorecardOrphans: scorecardOrphans.length,
+        userOrphans: userOrphans.length,
+        intentionalOrphans: intentionalOrphans.length
       },
-      details: orphans,
-      recommendations: this.getRecommendations(orphans)
+      details: {
+        matchOrphans,
+        memberOrphans,
+        scorecardOrphans,
+        userOrphans,
+        intentionalOrphans
+      },
+      recommendations: this.getRecommendations({ matchOrphans, memberOrphans, scorecardOrphans, userOrphans, intentionalOrphans })
     };
   }
 
