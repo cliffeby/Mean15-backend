@@ -19,7 +19,14 @@ const memberSchema = new mongoose.Schema({
   },
   handicap: { type: Number },
   lastDatePlayed: { type: String },
-  scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
+  /**
+   * Array of default course selections for this member.
+   * Each entry: { scorecardId: ObjectId }
+   * The actual tee info is stored in the referenced Scorecard's 'tees' property.
+   */
+  scorecardsId: [{
+    scorecardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }
+  }],
   Email: { type: String },
   // Embedded author object for audit
   author: {
@@ -29,7 +36,6 @@ const memberSchema = new mongoose.Schema({
   },
   GHIN: { type: String },
   CellPhone: { type: String },
-  defaultTees: { type: String },
   Street: { type: String },
   City: { type: String },
   State: { type: String },

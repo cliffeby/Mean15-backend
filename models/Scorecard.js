@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const ScorecardSchema = new mongoose.Schema({
-  groupName: { type: String },
-  name: { type: String },
+  course: { type: String },
+  tees: { type: String },
+  teeAbreviation: { type: String },
   rating: { type: Number },
   slope: { type: Number },
   parInputString: String,
@@ -11,9 +12,9 @@ const ScorecardSchema = new mongoose.Schema({
   hCapInputString: String,
   hCaps: [Number],
   yardsInputString: String,
-  yards: [Number],
-  scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
-  scorecardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' },
+  // yards: [Number],
+  // scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
+  // scorecardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' },
   user: { type: String },
   author: {
     id: { type: String },
@@ -27,7 +28,7 @@ const ScorecardSchema = new mongoose.Schema({
 });
 
 ScorecardSchema.virtual('courseTeeName').get(function () {
-  return `${this.groupName} ${this.name}`;
+  return `${this.course} ${this.tees}`;
 });
 
 ScorecardSchema.set('toJSON', { virtuals: true });
