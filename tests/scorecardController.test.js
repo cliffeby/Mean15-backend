@@ -35,7 +35,7 @@ describe('Scorecard API', () => {
 
   it('should create a new scorecard', async () => {
     const scorecardData = {
-      name: 'Test Scorecard',
+      course: 'Test Scorecard',
       date: new Date().toISOString(),
       user: 'user1',
       scores: [],
@@ -45,8 +45,8 @@ describe('Scorecard API', () => {
       
       .send(scorecardData);
     expect(res.statusCode).toBe(201);
-    if (res.body.scorecard && res.body.scorecard.name) {
-      expect(res.body.scorecard.name).toBe('Test Scorecard');
+    if (res.body.scorecard && res.body.scorecard.course) {
+      expect(res.body.scorecard.course).toBe('Test Scorecard');
       scorecardId = res.body.scorecard._id;
     } else if (res.body.name) {
       expect(res.body.name).toBe('Test Scorecard');
@@ -74,14 +74,14 @@ describe('Scorecard API', () => {
     const res = await request(app)
       .put(`/api/scorecards/${scorecardId}`)
       
-      .send({ name: 'Updated Scorecard' });
+      .send({ course: 'Updated Scorecard' });
     expect(res.statusCode).toBe(200);
-    if (res.body.scorecard && res.body.scorecard.name) {
-      expect(res.body.scorecard.name).toBe('Updated Scorecard');
-    } else if (res.body.name) {
-      expect(res.body.name).toBe('Updated Scorecard');
+    if (res.body.scorecard && res.body.scorecard.course) {
+      expect(res.body.scorecard.course).toBe('Updated Scorecard');
+    } else if (res.body.course) {
+      expect(res.body.course).toBe('Updated Scorecard');
     } else {
-      throw new Error('Response does not contain updated scorecard name');
+      throw new Error('Response does not contain updated scorecard course');
     }
   }, 5000);
 
