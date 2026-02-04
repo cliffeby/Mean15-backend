@@ -44,7 +44,15 @@ async function writeAuditLogToBlob(logEntry) {
   }
   const blobName = `audit-${new Date().toISOString()}-${uuidv4()}.json`;
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  await blockBlobClient.upload(JSON.stringify(logEntry), Buffer.byteLength(JSON.stringify(logEntry)));
+  // Add name to metadata if present
+  const metadata = {
+    date: new Date().toISOString(),
+    name: logEntry.name ? String(logEntry.name) : '',
+  };
+  await blockBlobClient.upload(JSON.stringify(logEntry), Buffer.byteLength(JSON.stringify(logEntry)), {
+    blobHTTPHeaders: { blobContentType: "application/json" },
+    metadata,
+  });
 }
 
 

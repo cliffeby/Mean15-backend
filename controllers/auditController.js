@@ -27,18 +27,52 @@ exports.getAuditLogs = async (_req, res, next) => {
       return res.status(500).json({ error: 'Failed to initialize Azure Blob client.' });
     }
     const containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
-    const logs = [];
-    for await (const blob of containerClient.listBlobsFlat()) {
-      if (blob.name.endsWith('.json')) {
+    // Pagination and filtering
+    const page = parseInt((_req.query.page || '1'), 10);
+    const pageSize = parseInt((_req.query.pageSize || '50'), 10);
+    const nameFilter = _req.query.name || null;
+    const dateFrom = _req.query.dateFrom ? new Date(_req.query.dateFrom) : null;
+    const dateTo = _req.query.dateTo ? new Date(_req.query.dateTo) : null;
+
+    let blobs = [];
+    for await (const blob of containerClient.listBlobsFlat({ includeMetadata: true })) {
+      if (!blob.name.endsWith('.json')) continue;
+      // Only include blobs with required metadata
+      if (!blob.metadata) continue;
+      // Filter by name if provided
+      if (nameFilter && (!blob.metadata.name || !blob.metadata.name.includes(nameFilter))) continue;
+      // Filter by date range if provided
+      const blobDate = blob.metadata.date ? new Date(blob.metadata.date) : null;
+      if (dateFrom && (!blobDate || blobDate < dateFrom)) continue;
+      if (dateTo && (!blobDate || blobDate > dateTo)) continue;
+      blobs.push({
+        name: blob.name,
+        metadata: blob.metadata,
+      });
+    }
+    // Sort by date descending
+    blobs.sort((a, b) => new Date(b.metadata.date) - new Date(a.metadata.date));
+    // Pagination
+    const total = blobs.length;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const pagedBlobs = blobs.slice(start, end);
+    // Download and parse only paged blobs
+    const logs = await Promise.all(
+      pagedBlobs.map(async (blob) => {
         const blockBlobClient = containerClient.getBlockBlobClient(blob.name);
         const downloadBlockBlobResponse = await blockBlobClient.download(0);
         const downloaded = await streamToString(downloadBlockBlobResponse.readableStreamBody);
-        logs.push(JSON.parse(downloaded));
-      }
-    }
-    // Sort logs by time descending
-    logs.sort((a, b) => new Date(b.time) - new Date(a.time));
-    res.json({ success: true, logs });
+        return { ...JSON.parse(downloaded), _blobName: blob.name, _metadata: blob.metadata };
+      })
+    );
+    res.json({
+      success: true,
+      logs,
+      page,
+      pageSize,
+      total,
+    });
   } catch (err) {
     next(err);
   }
