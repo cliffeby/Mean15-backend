@@ -60,6 +60,8 @@ const ScoreSchema = new Schema(
     scRating: Number,
     scPars: [Number],
     scHCaps: [Number],
+    scCourse: String,
+    scTees: String,
     scName: String,
     datePlayed: Date,
     foursomeIds: [

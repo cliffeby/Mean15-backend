@@ -40,6 +40,11 @@ const HCapSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Scorecard",
     },
+    scPar: Number,
+    scRating: Number,
+    scSlope: Number,
+    scCourse: String,
+    scTees: String,
     author: {
       id: { type: String },
       email: { type: String },
