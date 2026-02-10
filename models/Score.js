@@ -10,8 +10,8 @@ const ScoreSchema = new Schema(
     scoresToPost: [Number],
     usgaIndex: {
       type: Number,
-      min: [-10, 'USGA Index cannot be less than -10.0'],
-      max: [54, 'USGA Index cannot be greater than 54.0'],
+      min: [-1000, 'USGA Index cannot be less than -10.0'],
+      max: [154, 'USGA Index cannot be greater than 154.0'],
       validate: {
         validator: function (v) {
           // Allow null/undefined values
@@ -22,10 +22,10 @@ const ScoreSchema = new Schema(
         message: 'USGA Index must have at most one decimal place'
       }
     },
-    usgaIndexForTodaysScore: {
+    usgaDifferentialToday: {
       type: Number,
-      min: [-10, 'USGA Index for today cannot be less than -10.0'],
-      max: [54, 'USGA Index for today cannot be greater than 54.0'],
+      min: [-1000, 'USGA Index for today cannot be less than -10.0'],
+      max: [  154, 'USGA Index for today cannot be greater than 54.0'],
       validate: {
         validator: function (v) {
           // Allow null/undefined values
@@ -36,6 +36,21 @@ const ScoreSchema = new Schema(
         message: 'USGA Index for today must have at most one decimal place'
       }
     },
+    rochDifferentialToday: {
+      type: Number,
+      min: [-1000, 'ROCH Differential for today cannot be less than -10.0'],
+      max: [124, 'ROCH Differential for today cannot be greater than 124.0'],
+      validate: {
+        validator: function (v) {
+          // Allow null/undefined values
+          if (v == null) return true;
+          // Ensure the value has at most 1 decimal place
+          return Number.isInteger(v * 10);
+        },
+        message: 'ROCH Differential for today must have at most one decimal place'
+      }
+    },
+    othersDifferentialToday: Number,
     handicap: Number,
     wonTwoBall: { type: Boolean, default: false },
     wonOneBall: { type: Boolean, default: false },

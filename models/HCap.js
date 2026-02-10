@@ -9,6 +9,8 @@ const HCapSchema = new Schema(
     currentHCap: Number,
     newHCap: Number,
     datePlayed: Date,
+    rochDifferentialToday: Number,
+    usgaDifferentialToday: Number,
     usgaIndexForTodaysScore: {
       type: Number,
       min: [-10, "USGA Index for today cannot be less than -10.0"],
