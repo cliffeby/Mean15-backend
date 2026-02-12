@@ -27,7 +27,7 @@ exports.getAuditLogs = async (_req, res, next) => {
       return res.status(500).json({ error: 'Failed to initialize Azure Blob client.' });
     }
     const containerClient = blobServiceClient.getContainerClient(AUDIT_CONTAINER_NAME);
-    // Pagination and filtering
+    // Pagination and filtering.
     const page = parseInt((_req.query.page || '1'), 10);
     const pageSize = parseInt((_req.query.pageSize || '50'), 10);
     const nameFilter = _req.query.name || null;
