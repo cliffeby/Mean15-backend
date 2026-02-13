@@ -42,10 +42,14 @@ try {
 }
 
 const app = express();
+const allowedOrigins = [
+  'http://localhost:4200',
+  'https://brave-tree-00ac3970f.1.azurestaticapps.net'
+];
 
 app.use(helmet());
 app.use(cors({
-  origin: true,  // Reflect the request origin
+  origin: allowedOrigins,  // Reflect the request origin
   credentials: true
 }));
 
