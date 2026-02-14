@@ -1,4 +1,5 @@
 // app.js
+console.log('=== Backend started: ', new Date().toISOString());
 const environment = require('./config/environment');
 
 const express = require('express');
@@ -42,16 +43,42 @@ try {
 }
 
 const app = express();
+// DB type endpoint (must be public, so define before any /api middleware)
+// ...existing code...
+console.log('DB TYPE ROUTE REGISTERED');
 const allowedOrigins = [
   'http://localhost:4200',
   'https://brave-tree-00ac3970f.1.azurestaticapps.net'
 ];
-
+// Place this block here, before any app.use('/api', ...)
+const requestIp = (req) => req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+app.get('/api/config/db-type', (req, res) => {
+  const uri = process.env.MONGO_URI || '';
+  const host = req.hostname || '';
+  let server = 'unknown';
+  if (uri.includes('localhost') || uri.includes('127.0.0.1') || host.includes('localhost') || host.includes('127.0.0.1')) {
+    server = 'local';
+  } else if (uri.includes('azure') || host.includes('azure')) {
+    server = 'azure';
+  } else if (process.env.NODE_ENV) {
+    server = process.env.NODE_ENV;
+  }
+  console.log('[DB Type Endpoint] MONGO_URI:', uri, 'IP:', requestIp(req), 'Server:', server);
+  res.json({
+    dbType: getDbType(uri),
+    dbName: getDbName(uri),
+    server
+  });
+});
 app.use(helmet());
 app.use(cors({
   origin: allowedOrigins,  // Reflect the request origin
   credentials: true
 }));
+app.use((req, res, next) => {
+  console.log('INCOMING:', req.method, req.path, req.originalUrl, req.headers.origin);
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -142,10 +169,39 @@ app.use('/api/audit', requireRole('admin'), auditRoutes);
 // Example: app.use('/api/admin', requireRole('admin'));
 
 // healthcheck
+
+// Helper to determine DB type
+function getDbType(uri) {
+  if (uri.includes('cosmos.azure.com')) return 'AzureCosmos';
+  if (uri.includes('mongodb://127.0.0.1') || uri.includes('localhost')) return 'Local';
+  if (uri.includes('mongodb+srv://') && uri.includes('atlas')) return 'Atlas';
+  if (uri.includes('mongodb+srv://')) return 'Atlas'; // fallback for Atlas
+  return 'Unknown';
+}
+
+function getDbName(uri) {
+  // Extract db name from URI: after last '/' and before '?' or end
+  if (!uri) return 'Unknown';
+  // Handles both mongodb+srv and mongodb:// formats
+  // Example: mongodb+srv://user:pass@host/dbname?params
+  const parts = uri.split('/');
+  if (parts.length > 0) {
+    // Find the last non-empty part before any ?
+    const lastPart = parts[parts.length - 1].split('?')[0];
+    if (lastPart) return lastPart;
+  }
+  return 'Unknown';
+}
+
+// Healthcheck
 app.get('/', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // allow all origins
   res.json({ status: 'ok', env: process.env.NODE_ENV || 'development' });
 });
+
+
+
+// ...existing code...
 
 // Expose defaultLeague for admin config and profile logic
 app.get('/api/config/default-league', jwtCheck, (req, res) => {
