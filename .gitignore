@@ -1,10 +1,16 @@
-# Ignore everything in this directory except .gitkeep
-*
-!.gitkeep
+# Dependencies
+node_modules/
 
-node_modules
+# Environment variables
 .env
-logs
-coverage
-!backend/logs/.gitkeep
-# Ignore OS generated files
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# OS generated files
+.DS_Store
+Thumbs.db
