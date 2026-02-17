@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  lastName: { type: String, required: false },
   usgaIndex: { 
     type: Number,
     min: [-10, 'USGA Index cannot be less than -10.0'],
@@ -21,12 +21,9 @@ const memberSchema = new mongoose.Schema({
   lastDatePlayed: { type: String },
   /**
    * Array of default course selections for this member.
-   * Each entry: { scorecardId: ObjectId }
-   * The actual tee info is stored in the referenced Scorecard's 'tees' property.
+   * Each entry is a reference to a Scorecard ObjectId.
    */
-  scorecardsId: [{
-    scorecardId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }
-  }],
+  scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   Email: { type: String },
   // Embedded author object for audit
   author: {

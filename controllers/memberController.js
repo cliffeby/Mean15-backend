@@ -25,10 +25,23 @@ exports.getMember = async (req, res, next) => {
 exports.createMember = async (req, res, next) => {
   try {
     const memberData = { ...req.body, author: req.author };
+    console.log('[createMember] Received data:', JSON.stringify(memberData, null, 2));
     const member = await Member.create(memberData);
     // Return the document with virtuals (toJSON includes virtuals)
     res.status(201).json({ success: true, member });
   } catch (err) {
+    console.error('[createMember] Error:', err.message);
+    if (err.name === 'ValidationError') {
+      console.error('[createMember] Validation errors:', err.errors);
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Validation error', 
+        errors: Object.keys(err.errors).map(key => ({
+          field: key,
+          message: err.errors[key].message
+        }))
+      });
+    }
     next(err);
   }
 };

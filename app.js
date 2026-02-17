@@ -24,6 +24,7 @@ const matchRoutes = require('./routes/matchRoutes');
 const hcapRoutes = require('./routes/hcapRoutes');
 const orphanRoutes = require('./routes/orphanRoutes');
 const auditRoutes = require('./routes/auditRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 
 
 // Ensure logs directory exists (for Azure and local)
@@ -43,13 +44,23 @@ try {
 }
 
 const app = express();
-// DB type endpoint (must be public, so define before any /api middleware)
-// ...existing code...
-console.log('DB TYPE ROUTE REGISTERED');
+
+// Configure allowed origins for CORS
 const allowedOrigins = [
   'http://localhost:4200',
   'https://brave-tree-00ac3970f.1.azurestaticapps.net'
 ];
+
+// Apply security and CORS middleware FIRST
+app.use(helmet());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+// DB type endpoint (must be public, so define before any /api middleware)
+// ...existing code...
+console.log('DB TYPE ROUTE REGISTERED');
 // Place this block here, before any app.use('/api', ...)
 const requestIp = (req) => req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 app.get('/api/config/db-type', (req, res) => {
@@ -70,11 +81,6 @@ app.get('/api/config/db-type', (req, res) => {
     server
   });
 });
-app.use(helmet());
-app.use(cors({
-  origin: allowedOrigins,  // Reflect the request origin
-  credentials: true
-}));
 app.use((req, res, next) => {
   console.log('INCOMING:', req.method, req.path, req.originalUrl, req.headers.origin);
   next();
@@ -165,6 +171,7 @@ app.use('/api/matches', auditLogger, matchRoutes);
 app.use('/api/hcaps', auditLogger, hcapRoutes);
 app.use('/api/orphans', auditLogger, orphanRoutes);
 app.use('/api/audit', requireRole('admin'), auditRoutes);
+app.use('/api/email', auditLogger, emailRoutes);
 
 // Example: app.use('/api/admin', requireRole('admin'));
 
