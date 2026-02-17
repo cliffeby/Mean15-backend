@@ -25,6 +25,7 @@ const hcapRoutes = require('./routes/hcapRoutes');
 const orphanRoutes = require('./routes/orphanRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const emailRoutes = require('./routes/emailRoutes');
+const emailWebhookRoutes = require('./routes/emailWebhookRoutes');
 
 
 // Ensure logs directory exists (for Azure and local)
@@ -167,6 +168,9 @@ app.use('/api', (req, _res, next) => {
 
 // Mount auth routes first (no JWT check)
 app.use('/api/auth', authRoutes);
+
+// Email webhook endpoint (no JWT check - called by Azure Event Grid)
+app.use('/api/email/webhook', emailWebhookRoutes);
 
 // Global: require at least 'user' role for all /api routes except /api/auth
 const { requireMinRole } = require('./middleware/roleHierarchy');

@@ -57,8 +57,17 @@ class EmailService {
       };
     });
 
-    // Filter out invalid emails
-    const validRecipients = normalized.filter(rec => rec.email && this.validateEmail(rec.email));
+    // Filter out invalid emails and track which ones are invalid
+    const validRecipients = [];
+    const invalidEmails = [];
+    
+    normalized.forEach(rec => {
+      if (rec.email && this.validateEmail(rec.email)) {
+        validRecipients.push(rec);
+      } else if (rec.email) {
+        invalidEmails.push(rec.email);
+      }
+    });
 
     if (validRecipients.length === 0) {
       throw new Error('No valid email addresses provided');
@@ -111,7 +120,8 @@ class EmailService {
         messageId: result.id,
         status: result.status,
         recipientCount: validRecipients.length,
-        invalidEmails: normalized.length - validRecipients.length
+        invalidEmails: invalidEmails.length,
+        invalidEmailAddresses: invalidEmails
       };
     } catch (error) {
       logger.error('Failed to send email:', error);
