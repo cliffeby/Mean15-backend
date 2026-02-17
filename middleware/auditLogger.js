@@ -89,3 +89,5 @@ function auditLogger(req, _res, next) {
 }
 
 module.exports = auditLogger;
+// Expose helper for other modules to write audit logs programmatically
+auditLogger.writeAuditLog = writeAuditLogToBlob;
