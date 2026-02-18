@@ -16,8 +16,8 @@ Azure Communication Services → Event Grid → Your Webhook Endpoint → Audit 
 # Variables
 RESOURCE_GROUP="roch"
 LOCATION="eastus"
-ACS_RESOURCE_NAME="your-acs-resource-name"
-WEBHOOK_URL="https://your-backend-url.azurewebsites.net/api/email/webhook/events"
+ACS_RESOURCE_NAME="rockcommservice"
+WEBHOOK_URL="https://rochwebappeasttwo-cffheedghmhpb7ad.eastus-01.azurewebsites.net/api/email/webhook/events"
 
 # Create Event Grid System Topic for Azure Communication Services
 az eventgrid system-topic create \
