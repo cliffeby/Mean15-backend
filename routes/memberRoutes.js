@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { getMembers, getMember, createMember, updateMember, deleteMember, removeDuplicateEmails, assignRandomIndexBatch } = require('../controllers/memberController');
+const { getMembers, getMember, createMember, updateMember, deleteMember, removeDuplicateEmails, assignRandomIndexBatch, resetBounceStatus } = require('../controllers/memberController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
 const { extractAuthor } = require('../middleware/authorExtractor');
 
@@ -21,6 +21,7 @@ router.post('/', (_req, _res, next) => {
 }, requireMinRole('admin'), extractAuthor, createMember);        // Create new member (editor or admin)
 
 router.put('/:id', requireMinRole('admin'), extractAuthor, updateMember);      // Update member (editor or admin)
+router.patch('/:id/reset-bounce', requireMinRole('admin'), extractAuthor, resetBounceStatus); // Reset email bounce status
 router.delete('/:id', requireMinRole('admin'), extractAuthor, deleteMember);   // Delete member (admin only)
 router.delete('/duplicates/remove', requireMinRole('admin'), removeDuplicateEmails);  // Remove duplicate emails
 

@@ -11,8 +11,6 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 const auditLogger = require('./middleware/auditLogger');
-const { expressjwt: jwt } = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
 
 const authRoutes = require('./routes/authRoutes');
 // Customer model, controller, and routes removed
@@ -126,25 +124,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// MS Entra config
-const ENTRA_TENANT_ID = process.env.ENTRA_TENANT_ID;
-const ENTRA_CLIENT_ID = process.env.ENTRA_CLIENT_ID;
-const ENTRA_ISSUER = `https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0`;
-
-// JWT validation middleware for Entra External ID tokens
-const jwtCheck = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    jwksUri: `https://login.microsoftonline.com/${ENTRA_TENANT_ID}/discovery/v2.0/keys`,
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5
-  }),
-  audience: [`api://${ENTRA_CLIENT_ID}`, ENTRA_CLIENT_ID],
-  issuer: ENTRA_ISSUER,
-  algorithms: ['RS256'],
-  requestProperty: 'auth',
-  credentialsRequired: false,
-});
+// JWT validation middleware for Entra tokens (shared with authRoutes/provision)
+const jwtCheck = require('./middleware/jwtCheck');
 
 // Role-based middleware
 function requireRole(role) {

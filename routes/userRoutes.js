@@ -1,11 +1,14 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, deleteUser, getUser, updateUserLeague } = require('../controllers/userController');
+const { getAllUsers, deleteUser, getUser, updateUserLeague, inviteUser } = require('../controllers/userController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
 
 // Auth is now handled globally in app.js via jwtCheck middleware
 // All user routes require admin access
+
+// POST /api/users/invite - send Entra guest invitation (admin only)
+router.post('/invite', requireMinRole('admin'), inviteUser);
 
 // GET /api/users - list all users (admin only)
 router.get('/', requireMinRole('admin'), getAllUsers);

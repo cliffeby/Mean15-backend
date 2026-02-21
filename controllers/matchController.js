@@ -6,7 +6,7 @@ const Score = require('../models/Score');
 // @access  Private
 exports.getMatches = async (_req, res, next) => {
   try {
-    const matches = await Match.find().populate('scorecardId', 'name slope rating');
+    const matches = await Match.find().populate('scorecardId', 'course name slope rating');
     
     // Debug: Check which matches have scorecards
     // console.log('=== MATCH SCORECARD DEBUG ===');

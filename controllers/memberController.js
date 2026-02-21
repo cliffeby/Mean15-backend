@@ -203,3 +203,17 @@ exports.removeDuplicateEmails = async (req, res, next) => {
       res.status(500).json({ error: err.message });
     }
   };
+
+exports.resetBounceStatus = async (req, res, next) => {
+  try {
+    const member = await Member.findByIdAndUpdate(
+      req.params.id,
+      { emailBounceStatus: 'ok', emailBounceCount: 0, emailLastBounceAt: null, emailLastBounceReason: null },
+      { new: true }
+    );
+    if (!member) return res.status(404).json({ success: false, message: 'Member not found' });
+    res.json({ success: true, member });
+  } catch (err) {
+    next(err);
+  }
+};

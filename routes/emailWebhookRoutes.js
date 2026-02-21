@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const logger = require('../utils/logger');
 const { writeAuditLog } = require('../middleware/auditLogger');
+const Member = require('../models/Member');
 
 /**
  * Webhook endpoint for Azure Communication Services Email Events
@@ -86,13 +87,55 @@ async function handleDeliveryReport(data) {
       },
       author: { id: 'system', email: 'system', name: 'Email Service' }
     });
-    
-    // TODO: Store in database for bounce tracking
-    // - Update member record to mark email as bounced
-    // - Increment bounce counter
-    // - If bounce count > threshold, mark email as invalid
+
+    // Determine bounce type from error code
+    // ACS error codes: 5xx = hard bounce (permanent), 4xx = soft bounce (transient)
+    const errorCode = deliveryStatusDetails?.errorCode || '';
+    const statusMessage = (deliveryStatusDetails?.statusMessage || '').toLowerCase();
+    let bounceStatus = 'soft_bounce';
+
+    if (deliveryStatus === 'Suppressed') {
+      bounceStatus = 'suppressed';
+    } else if (
+      String(errorCode).startsWith('5') ||
+      statusMessage.includes('invalid') ||
+      statusMessage.includes('does not exist') ||
+      statusMessage.includes('user unknown') ||
+      statusMessage.includes('no such user') ||
+      statusMessage.includes('permanent')
+    ) {
+      bounceStatus = 'hard_bounce';
+    }
+
+    // Find the member by email and update their bounce status
+    const member = await Member.findOne({ Email: new RegExp(`^${recipient}$`, 'i') });
+    if (member) {
+      const newBounceCount = (member.emailBounceCount || 0) + 1;
+      // After 3 soft bounces, escalate to hard
+      const finalStatus = bounceStatus === 'soft_bounce' && newBounceCount >= 3
+        ? 'hard_bounce'
+        : bounceStatus;
+
+      await Member.findByIdAndUpdate(member._id, {
+        emailBounceStatus: finalStatus,
+        emailBounceCount: newBounceCount,
+        emailLastBounceAt: new Date(),
+        emailLastBounceReason: deliveryStatusDetails?.statusMessage || deliveryStatus
+      });
+
+      logger.info(`Marked member ${member._id} email as ${finalStatus} (${newBounceCount} bounces)`);
+    } else {
+      logger.warn(`No member found with email ${recipient} for bounce tracking`);
+    }
+
   } else if (deliveryStatus === 'Delivered') {
     logger.info(`Email delivered successfully to ${recipient}`, { messageId });
+
+    // Reset bounce count on successful delivery
+    await Member.findOneAndUpdate(
+      { Email: new RegExp(`^${recipient}$`, 'i'), emailBounceStatus: { $ne: 'hard_bounce' } },
+      { emailBounceStatus: 'ok', emailBounceCount: 0 }
+    );
   }
 }
 

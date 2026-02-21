@@ -59,11 +59,19 @@ exports.sendToMembers = async (req, res, next) => {
       });
     }
 
-    // Fetch members
+    // Fetch members — exclude hard bounces and suppressed addresses
     const members = await Member.find({ 
       _id: { $in: memberIds },
-      Email: { $exists: true, $ne: null, $ne: '' }
-    }).select('Email firstName lastName').lean();
+      Email: { $exists: true, $ne: null, $ne: '' },
+      emailBounceStatus: { $nin: ['hard_bounce', 'suppressed', 'invalid'] }
+    }).select('Email firstName lastName emailBounceStatus').lean();
+
+    // Identify any skipped members due to bounce status
+    const allRequested = await Member.find({ _id: { $in: memberIds } })
+      .select('_id Email emailBounceStatus').lean();
+    const skipped = allRequested.filter(m =>
+      ['hard_bounce', 'suppressed', 'invalid'].includes(m.emailBounceStatus)
+    );
 
     if (members.length === 0) {
       return res.status(404).json({
@@ -127,6 +135,8 @@ exports.sendToMembers = async (req, res, next) => {
     res.json({
       success: true,
       message: 'Email sent successfully',
+      skippedBounced: skipped.length,
+      skippedEmails: skipped.map(m => m.Email),
       ...result
     });
 

@@ -1,22 +1,43 @@
 # Email Bounce Tracking Setup
 
-## Overview
-Azure Communication Services sends delivery status notifications via Azure Event Grid. This allows you to track bounced emails, failed deliveries, and engagement (opens/clicks).
+## Current Status 🚧
 
-## Architecture
-```
-Azure Communication Services → Event Grid → Your Webhook Endpoint → Audit Log / Database
+**Note:** Azure Communication Services EmailServices resources do not currently support Event Grid System Topics for delivery status notifications. This feature appears to be unavailable or in private preview.
+
+The webhook infrastructure has been implemented in this codebase (see [emailWebhookRoutes.js](routes/emailWebhookRoutes.js)) and will be ready to use once Microsoft adds Event Grid support for `Microsoft.Communication.EmailServices` resources.
+
+## Alternative: Manual Status Checking
+
+Until Event Grid support is available, you can poll message status using the Azure Communication Services SDK:
+
+```javascript
+// Check email delivery status (polling approach)
+async function checkEmailStatus(messageId) {
+  const status = await emailClient.getMessageStatus(messageId);
+  return {
+    messageId,
+    status: status.status, // Queued, Sent, Delivered, Failed
+    error: status.error
+  };
+}
 ```
 
-## Setup Steps
+## When Event Grid Becomes Available
+
+Once Microsoft adds Event Grid support for EmailServices, follow these steps:
 
 ### 1. Create Event Grid System Topic
 
+**Prerequisites:**
+- Azure Communication Services EmailServices must support Event Grid (currently unavailable)
+- Verify support by checking: `az eventgrid topic-type list | grep Email`
+
 ```bash
-# Variables
+# Variables (UPDATED with correct values)
 RESOURCE_GROUP="roch"
-LOCATION="eastus"
-ACS_RESOURCE_NAME="rockcommservice"
+LOCATION="global"
+ACS_RESOURCE_NAME="rochemail"
+ACS_RESOURCE_TYPE="EmailServices"  # Note: Not yet supported by Event Grid
 WEBHOOK_URL="https://rochwebappeasttwo-cffheedghmhpb7ad.eastus-01.azurewebsites.net/api/email/webhook/events"
 
 # Create Event Grid System Topic for Azure Communication Services

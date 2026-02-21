@@ -25,6 +25,14 @@ const memberSchema = new mongoose.Schema({
    */
   scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
   Email: { type: String },
+  emailBounceStatus: {
+    type: String,
+    enum: ['ok', 'soft_bounce', 'hard_bounce', 'suppressed', 'invalid'],
+    default: 'ok'
+  },
+  emailBounceCount: { type: Number, default: 0 },
+  emailLastBounceAt: { type: Date },
+  emailLastBounceReason: { type: String },
   // Embedded author object for audit
   author: {
     id: { type: String },
