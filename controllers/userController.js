@@ -1,6 +1,7 @@
 // controllers/userController.js
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const emailService = require('../utils/emailService');
 
 // ---------------------------------------------------------------------------
 // Graph API helper — acquires an app-only access token via client_credentials
@@ -51,12 +52,8 @@ exports.inviteUser = async (req, res, next) => {
       body: JSON.stringify({
         invitedUserEmailAddress: email,
         inviteRedirectUrl: redirectUrl,
-        sendInvitationMessage: true,
+        sendInvitationMessage: false,   // We send the email ourselves via ACS
         invitedUserDisplayName: displayName || undefined,
-        invitedUserMessageInfo: {
-          customizedMessageBody:
-            'You have been invited to the Rochester Golf System. Click the link below to accept your invitation and sign in.',
-        },
       }),
     });
 
@@ -66,8 +63,52 @@ exports.inviteUser = async (req, res, next) => {
       return res.status(graphRes.status).json({ success: false, message: graphData?.error?.message || 'Invitation failed.' });
     }
 
-    logger.info(`Entra guest invitation sent to: ${email}`);
-    return res.json({ success: true, message: `Invitation sent to ${email}.`, inviteRedeemUrl: graphData.inviteRedeemUrl });
+    const inviteRedeemUrl = graphData.inviteRedeemUrl;
+    logger.info(`Entra guest invitation created for: ${email} | redeemUrl: ${inviteRedeemUrl}`);
+
+    // Send invitation email via Azure Communication Services
+    const appName = process.env.APP_NAME || 'Rochester Golf System';
+    const greeting = displayName ? `Hi ${displayName},` : 'Hello,';
+    try {
+      await emailService.sendEmail({
+        to: email,
+        subject: `You've been invited to ${appName}`,
+        plainTextContent:
+          `${greeting}\n\nYou have been invited to ${appName}.\n\n` +
+          `Accept your invitation by visiting the link below:\n${inviteRedeemUrl}\n\n` +
+          `This link can only be used once. After accepting, sign in with your existing ` +
+          `email account (Google, Microsoft, etc.).\n\nWelcome aboard!`,
+        htmlContent: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:40px auto;padding:32px;
+                      border:1px solid #e0e0e0;border-radius:8px;">
+            <h2 style="color:#1a237e;margin-top:0;">${appName}</h2>
+            <p>${greeting}</p>
+            <p>You have been invited to <strong>${appName}</strong>.</p>
+            <p>Click the button below to accept your invitation and create your account:</p>
+            <p style="text-align:center;margin:32px 0;">
+              <a href="${inviteRedeemUrl}"
+                 style="background:#1976d2;color:#fff;padding:14px 28px;border-radius:4px;
+                        text-decoration:none;font-size:16px;font-weight:bold;">
+                Accept Invitation
+              </a>
+            </p>
+            <p style="font-size:12px;color:#757575;">
+              If the button doesn't work, copy and paste this link into your browser:<br>
+              <a href="${inviteRedeemUrl}" style="color:#1976d2;">${inviteRedeemUrl}</a>
+            </p>
+            <p style="font-size:12px;color:#757575;">
+              This link can only be used once. After accepting, sign in with your existing
+              email account (Google, Microsoft, Yahoo, etc.).
+            </p>
+          </div>`,
+      });
+      logger.info(`Invitation email sent to: ${email}`);
+    } catch (emailErr) {
+      // Email failed — log it but still return success with the URL so the admin can share it manually
+      logger.warn(`Invitation email delivery failed for ${email}: ${emailErr.message}`);
+    }
+
+    return res.json({ success: true, message: `Invitation sent to ${email}.`, inviteRedeemUrl });
   } catch (err) {
     next(err);
   }
