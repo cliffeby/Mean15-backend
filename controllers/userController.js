@@ -64,7 +64,25 @@ exports.inviteUser = async (req, res, next) => {
     }
 
     const inviteRedeemUrl = graphData.inviteRedeemUrl;
-    logger.info(`Entra guest invitation created for: ${email} | redeemUrl: ${inviteRedeemUrl}`);
+    const invitedOid = graphData.invitedUser?.id;
+    logger.info(`Entra guest invitation created for: ${email} (OID: ${invitedOid}) | redeemUrl: ${inviteRedeemUrl}`);
+
+    // Pre-provision the User record so the admin sees them in the user list immediately
+    // and so provision() on first login finds an existing record instead of creating one.
+    try {
+      const existing = await User.findOne({ $or: [{ entraOid: invitedOid }, { email }] });
+      if (!existing) {
+        await User.create({
+          name: displayName || email.split('@')[0],
+          email,
+          entraOid: invitedOid || undefined,
+          role: 'user',
+        });
+        logger.info(`Pre-provisioned user record for invited guest: ${email}`);
+      }
+    } catch (dbErr) {
+      logger.warn(`Pre-provision DB write failed for ${email}: ${dbErr.message}`);
+    }
 
     // Send invitation email via Azure Communication Services
     const appName = process.env.APP_NAME || 'Rochester Golf System';
