@@ -155,7 +155,8 @@ app.use('/api/email/webhook', emailWebhookRoutes);
 
 // Global: require at least 'user' role for all /api routes except /api/auth
 const { requireMinRole } = require('./middleware/roleHierarchy');
-app.use('/api', jwtCheck, (req, res, next) => {
+const enrichAuthFromDb = require('./middleware/enrichAuthFromDb');
+app.use('/api', jwtCheck, enrichAuthFromDb, (req, res, next) => {
   // Allow /api/auth without role check
   if (req.path.startsWith('/auth')) return next();
   return requireMinRole('user')(req, res, next);
