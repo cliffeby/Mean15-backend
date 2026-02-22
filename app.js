@@ -124,18 +124,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// JWT validation middleware for Entra tokens (shared with authRoutes/provision)
-const jwtCheck = require('./middleware/jwtCheck');
-
-// Role-based middleware
-function requireRole(role) {
-  return (req, res, next) => {
-    const roles = req.auth?.roles || [req.auth?.role].filter(Boolean);
-    if (roles && roles.includes(role)) return next();
-    return res.status(403).json({ error: 'Forbidden: insufficient role' });
-  };
-}
-
+// JWT validation middleware for local auth (replaces jwtCheck)
 // Debug logging for all API requests
 app.use('/api', (req, _res, next) => {
   // console.log(`\n--- API Request ---`);
@@ -153,16 +142,23 @@ app.use('/api/auth', authRoutes);
 // Email webhook endpoint (no JWT check - called by Azure Event Grid)
 app.use('/api/email/webhook', emailWebhookRoutes);
 
-// Global: require at least 'user' role for all /api routes except /api/auth
+// All other /api routes require a valid local JWT
+const auth = require('./middleware/auth');
 const { requireMinRole } = require('./middleware/roleHierarchy');
-const enrichAuthFromDb = require('./middleware/enrichAuthFromDb');
-app.use('/api', jwtCheck, enrichAuthFromDb, (req, res, next) => {
-  // Allow /api/auth without role check
+app.use('/api', auth, (req, res, next) => {
   if (req.path.startsWith('/auth')) return next();
   return requireMinRole('user')(req, res, next);
 });
 
-// Add auditLogger after JWT check for all protected API routes
+// Role check helper for individual routes
+function requireRole(role) {
+  return (req, res, next) => {
+    const level = { user: 1, fieldhand: 2, admin: 3, developer: 4 };
+    const userLevel = level[req.user?.role] || 0;
+    if (userLevel >= (level[role] || 0)) return next();
+    return res.status(403).json({ error: 'Forbidden: insufficient role' });
+  };
+}
 app.use('/api/members', auditLogger, memberRoutes);
 app.use('/api/users', auditLogger, userRoutes);
 app.use('/api/scorecards', auditLogger, scorecardRoutes);
@@ -211,9 +207,9 @@ app.get('/', (req, res) => {
 // ...existing code...
 
 // Expose defaultLeague for admin config and profile logic
-app.get('/api/config/default-league', jwtCheck, (req, res) => {
+app.get('/api/config/default-league', auth, (req, res) => {
   res.json({ defaultLeague: environment.defaultLeague });
-});
+});;
 
 // error handler (last) - deploy trigger
 app.use(errorHandler);
