@@ -34,12 +34,18 @@ module.exports = async function enrichAuthFromDb(req, res, next) {
     }
     if (!email && rawUpn && !rawUpn.includes('#EXT#')) email = rawUpn.toLowerCase();
 
+    // DIAGNOSTIC — log claims so we can see exactly what the guest JWT contains
+    logger.info(`[enrichAuth] oid=${oid} email=${email} rawUpn=${rawUpn} allClaims=${JSON.stringify(Object.keys(req.auth))}`);
+
     const query = [];
     if (oid) query.push({ entraOid: oid });
     if (email) query.push({ email });
     if (query.length === 0) return next();
 
     const user = await User.findOne({ $or: query }).select('role entraOid email').lean();
+
+    // DIAGNOSTIC — log what the DB lookup found
+    logger.info(`[enrichAuth] query=${JSON.stringify(query)} found=${user ? user.email + ' role=' + user.role : 'null'}`);
 
     if (user) {
       // Backfill entraOid if this is their first login after being pre-provisioned by email
