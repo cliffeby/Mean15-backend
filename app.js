@@ -215,7 +215,7 @@ app.get('/api/config/default-league', jwtCheck, (req, res) => {
   res.json({ defaultLeague: environment.defaultLeague });
 });
 
-// error handler (last)
+// error handler (last) - deploy trigger
 app.use(errorHandler);
 
 module.exports = app;
