@@ -1,7 +1,7 @@
 // routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getAllUsers, deleteUser, getUser, updateUserLeague, inviteUser } = require('../controllers/userController');
+const { getAllUsers, deleteUser, getUser, updateUserLeague, updateUserRole, inviteUser } = require('../controllers/userController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
 
 // Auth is now handled globally in app.js via jwtCheck middleware
@@ -18,6 +18,9 @@ router.get('/:id', requireMinRole('admin'), getUser);
 
 // PATCH /api/users/:id/league - update user's defaultLeague (admin only)
 router.patch('/:id/league', requireMinRole('admin'), updateUserLeague);
+
+// PATCH /api/users/:id/role - update user's role (admin/developer only)
+router.patch('/:id/role', requireMinRole('admin'), updateUserRole);
 
 // DELETE /api/users/:id - delete user by id (admin only)
 router.delete('/:id', requireMinRole('admin'), deleteUser);
