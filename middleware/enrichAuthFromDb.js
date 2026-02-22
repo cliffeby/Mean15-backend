@@ -22,13 +22,17 @@ module.exports = async function enrichAuthFromDb(req, res, next) {
     const entraRoles = Array.isArray(req.auth.roles) ? req.auth.roles : [];
     if (entraRoles.length > 0) return next();
 
-    // Find the DB user by OID (most reliable) or email/upn
-    const oid = req.auth.oid || req.auth.sub;
-    const email =
-      req.auth.preferred_username ||
-      req.auth.email ||
-      req.auth.upn ||
-      null;
+    // Find the DB user by OID (most reliable) or real email.
+    // Guest UPNs look like user_gmail.com#EXT#@tenant.onmicrosoft.com — decode them.
+    const oid = req.auth.oid;
+    const rawUpn = req.auth.preferred_username || req.auth.upn || '';
+    let email = req.auth.email || null; // prefer the actual email claim
+    if (!email && rawUpn.includes('#EXT#')) {
+      const local = rawUpn.split('#EXT#')[0];
+      const atIdx = local.lastIndexOf('_');
+      if (atIdx !== -1) email = (local.substring(0, atIdx) + '@' + local.substring(atIdx + 1)).toLowerCase();
+    }
+    if (!email && rawUpn && !rawUpn.includes('#EXT#')) email = rawUpn.toLowerCase();
 
     const query = [];
     if (oid) query.push({ entraOid: oid });

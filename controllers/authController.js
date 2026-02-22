@@ -148,10 +148,28 @@ exports.changePassword = async (req, res, next) => {
 // ---------------------------------------------------------------------------
 // POST /api/auth/provision  (Entra JIT provisioning — see inline jwtCheck in route)
 // ---------------------------------------------------------------------------
+// Extract the real email from an Entra token, handling the #EXT# guest UPN format.
+// Guest UPN: user_gmail.com#EXT#@tenant.onmicrosoft.com → user@gmail.com
+function extractEmail(auth) {
+  // Prefer the 'email' claim — it always holds the real address
+  if (auth?.email) return auth.email.toLowerCase();
+
+  const upn = auth?.preferred_username || '';
+  if (upn.includes('#EXT#')) {
+    // Decode: everything before #EXT#, then replace the LAST underscore with @
+    const local = upn.split('#EXT#')[0];
+    const atIdx = local.lastIndexOf('_');
+    if (atIdx !== -1) {
+      return (local.substring(0, atIdx) + '@' + local.substring(atIdx + 1)).toLowerCase();
+    }
+  }
+  return upn.toLowerCase() || null;
+}
+
 exports.provision = async (req, res, next) => {
   try {
     const oid = req.auth?.oid;
-    const email = (req.auth?.preferred_username || req.auth?.email || '').toLowerCase();
+    const email = extractEmail(req.auth);
     const name = req.auth?.name || email;
 
     if (!oid && !email) {
