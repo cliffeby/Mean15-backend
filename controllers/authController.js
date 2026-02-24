@@ -1,6 +1,4 @@
-// Authentication controller.
-// Local registration and login are supported alongside Microsoft Entra (MSAL).
-// Entra users are provisioned via /api/auth/provision (JIT).
+// Authentication controller — local email/password only.
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const jwt = require('jsonwebtoken');
@@ -99,10 +97,10 @@ exports.login = async (req, res, next) => {
 };
 
 // ---------------------------------------------------------------------------
-// GET /api/auth/me  (kept for local-auth clients)
+// GET /api/auth/me
 // ---------------------------------------------------------------------------
 exports.getMe = async (req, res) => {
-  return res.status(501).json({ success: false, message: 'User info is handled by Microsoft Entra. This endpoint is disabled.' });
+  return res.json({ success: true, user: { _id: req.user._id, name: req.user.name, email: req.user.email, role: req.user.role } });
 };
 
 // ---------------------------------------------------------------------------
@@ -145,52 +143,4 @@ exports.changePassword = async (req, res, next) => {
   }
 };
 
-// ---------------------------------------------------------------------------
-// POST /api/auth/provision  (Entra JIT provisioning — see inline jwtCheck in route)
-// ---------------------------------------------------------------------------
-// Extract the real email from an Entra token, handling the #EXT# guest UPN format.
-// Guest UPN: user_gmail.com#EXT#@tenant.onmicrosoft.com → user@gmail.com
-function extractEmail(auth) {
-  // Prefer the 'email' claim — it always holds the real address
-  if (auth?.email) return auth.email.toLowerCase();
 
-  const upn = auth?.preferred_username || '';
-  if (upn.includes('#EXT#')) {
-    // Decode: everything before #EXT#, then replace the LAST underscore with @
-    const local = upn.split('#EXT#')[0];
-    const atIdx = local.lastIndexOf('_');
-    if (atIdx !== -1) {
-      return (local.substring(0, atIdx) + '@' + local.substring(atIdx + 1)).toLowerCase();
-    }
-  }
-  return upn.toLowerCase() || null;
-}
-
-exports.provision = async (req, res, next) => {
-  try {
-    const oid = req.auth?.oid;
-    const email = extractEmail(req.auth);
-    const name = req.auth?.name || email;
-
-    if (!oid && !email) {
-      return res.status(400).json({ success: false, message: 'Cannot provision: no OID or email in token.' });
-    }
-
-    let user = await User.findOne({ $or: [{ entraOid: oid }, { email }] });
-
-    if (user) {
-      if (oid && !user.entraOid) {
-        user.entraOid = oid;
-        await user.save();
-      }
-      return res.json({ success: true, provisioned: false, user: { _id: user._id, name: user.name, email: user.email, role: user.role, defaultLeague: user.defaultLeague } });
-    }
-
-    user = await User.create({ name, email, entraOid: oid, role: 'user' });
-    logger.info(`JIT provisioned new user: ${email} (OID: ${oid})`);
-
-    return res.status(201).json({ success: true, provisioned: true, user: { _id: user._id, name: user.name, email: user.email, role: user.role, defaultLeague: user.defaultLeague } });
-  } catch (err) {
-    next(err);
-  }
-};

@@ -127,6 +127,37 @@ exports.updateUserRole = async (req, res, next) => {
   }
 };
 
+// GET /api/users/preferences/me - get current user's preferences
+exports.getMyPreferences = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('preferences');
+    res.json({ success: true, preferences: user?.preferences || {} });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// PUT /api/users/preferences/me - save current user's preferences (partial merge)
+exports.saveMyPreferences = async (req, res, next) => {
+  try {
+    // Partially merge: only update the top-level keys sent (e.g. appConfig, columns)
+    const patch = {};
+    for (const [k, v] of Object.entries(req.body)) {
+      patch[`preferences.${k}`] = v;
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: patch },
+      { new: true, runValidators: false }
+    ).select('preferences');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    logger.info(`Preferences saved for ${req.user.email}`);
+    res.json({ success: true, preferences: user.preferences });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Update user's defaultLeague
 exports.updateUserLeague = async (req, res, next) => {
   try {
