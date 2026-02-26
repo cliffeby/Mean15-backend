@@ -23,7 +23,7 @@ const memberSchema = new mongoose.Schema({
    * Array of default course selections for this member.
    * Each entry is a reference to a Scorecard ObjectId.
    */
-  scorecardsId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scorecard' }],
+  scorecardsId: [{ type: String }],
   Email: { type: String },
   emailBounceStatus: {
     type: String,

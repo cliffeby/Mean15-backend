@@ -148,7 +148,8 @@ exports.deleteScore = async (req, res, next) => {
 exports.getScoresByMember = async (req, res, next) => {
   try {
     const scores = await Score.find({ memberId: req.params.memberId })
-      .populate('memberId', 'name', 'firstName', 'lastName');
+      .populate('memberId', 'firstName lastName name')
+      .sort({ datePlayed: -1 });
     res.json({ success: true, count: scores.length, scores });
   } catch (err) {
     next(err);

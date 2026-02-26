@@ -18,38 +18,9 @@ const MatchSchema = new Schema(
     },
     players: Number,
     status: { type: Schema.Types.String, default: 'open' },
-    lineUps: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Member',
-    }],
-    foursomeIdsTEMP: [[
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      }
-    ]],
-    partnerIdsTEMP: [[
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      }
-    ]],
+    lineUps: [{ type: String }],
+    foursomeIdsTEMP: [[String]],
+    partnerIdsTEMP: [[String]],
     datePlayed: Date,
     user: {
       type: Schema.Types.String,

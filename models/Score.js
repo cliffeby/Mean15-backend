@@ -79,18 +79,8 @@ const ScoreSchema = new Schema(
     scTees: String,
     scName: String,
     datePlayed: Date,
-    foursomeIds: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-    ],
-    partnerIds: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Member',
-      },
-    ],
+    foursomeIds: [{ type: String }],
+    partnerIds: [{ type: String }],
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
