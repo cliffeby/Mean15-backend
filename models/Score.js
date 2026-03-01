@@ -38,8 +38,8 @@ const ScoreSchema = new Schema(
     },
     rochDifferentialToday: {
       type: Number,
-      min: [-1000, 'ROCH Differential for today cannot be less than -10.0'],
-      max: [124, 'ROCH Differential for today cannot be greater than 124.0'],
+      // min: [-1000, 'ROCH Differential for today cannot be less than -10.0'],
+      // max: [124, 'ROCH Differential for today cannot be greater than 124.0'],
       validate: {
         validator: function (v) {
           // Allow null/undefined values
@@ -51,7 +51,9 @@ const ScoreSchema = new Schema(
       }
     },
     othersDifferentialToday: Number,
-    handicap: Number,
+    rochIndex: Number,
+    usgaCapToday: Number,
+    rochCapToday: Number,
     wonTwoBall: { type: Boolean, default: false },
     wonOneBall: { type: Boolean, default: false },
     wonIndo: { type: Boolean, default: false },
@@ -77,6 +79,7 @@ const ScoreSchema = new Schema(
     scHCaps: [Number],
     scCourse: String,
     scTees: String,
+    teeAbreviation: String,
     scName: String,
     datePlayed: Date,
     foursomeIds: [{ type: String }],

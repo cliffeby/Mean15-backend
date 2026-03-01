@@ -3,12 +3,26 @@ const mongoose = require('mongoose');
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: false },
-  usgaIndex: { 
+  usgaIndex: {
     type: Number,
     min: [-10, 'USGA Index cannot be less than -10.0'],
     max: [54, 'USGA Index cannot be greater than 54.0'],
     validate: {
-      validator: function(v) {
+      validator: function (v) {
+        // Allow null/undefined values
+        if (v == null) return true;
+        // Ensure the value has at most 1 decimal place
+        return Number.isInteger(v * 10);
+      },
+      message: 'USGA Index must have at most one decimal place'
+    }
+  },
+  rochIndex: {
+    type: Number,
+    min: [-10, 'USGA Index cannot be less than -10.0'],
+    max: [54, 'USGA Index cannot be greater than 54.0'],
+    validate: {
+      validator: function (v) {
         // Allow null/undefined values
         if (v == null) return true;
         // Ensure the value has at most 1 decimal place
@@ -77,17 +91,17 @@ memberSchema.virtual('fullNameR')
     this.set({ lastName, firstName });
   });
 
-  // memberSchema.virtual('name')
-  // .get(function () {
-  //   return `${this.lastName}, ${this.firstName}`;
-  // })
-  // .set(function (v) {
-  //   const lastName = v.substring(0, v.indexOf(' '));
-  //   const firstName = v.substring(v.indexOf(' ') + 1);
-  //   this.set({ lastName, firstName });
-  // });
+// memberSchema.virtual('name')
+// .get(function () {
+//   return `${this.lastName}, ${this.firstName}`;
+// })
+// .set(function (v) {
+//   const lastName = v.substring(0, v.indexOf(' '));
+//   const firstName = v.substring(v.indexOf(' ') + 1);
+//   this.set({ lastName, firstName });
+// });
 
-  memberSchema.virtual('name').get(function () {
+memberSchema.virtual('name').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 

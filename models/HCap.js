@@ -6,15 +6,17 @@ const HCapSchema = new Schema(
   {
     name: String,
     postedScore: Number,
-    currentHCap: Number,
-    newHCap: Number,
+    // currentHCap: Number,
+    // newHCap: Number,
     datePlayed: Date,
-    rochDifferentialToday: Number,
-    usgaDifferentialToday: Number,
-    usgaIndexForTodaysScore: {
+    rochDifferentialForTodaysRound: Number,
+    usgaDifferentialForTodaysRound: Number,
+    rochIndexForThisRound: Number,
+    usgaIndexForThisRound: Number,
+    usgaIndexAfterTodaysScore: {
       type: Number,
-      min: [-10, "USGA Index for today cannot be less than -10.0"],
-      max: [54, "USGA Index for today cannot be greater than 54.0"],
+      // min: [-10, "USGA Index for today cannot be less than -10.0"],
+      // max: [54, "USGA Index for today cannot be greater than 54.0"],
       validate: {
         validator: function (v) {
           // Allow null/undefined values
@@ -25,7 +27,26 @@ const HCapSchema = new Schema(
         message: "USGA Index for today must have at most one decimal place",
       },
     },
-    handicapDifferential: Number,
+    rochIndexAfterTodaysScore: {
+      type: Number,
+      // min: [-10, "USGA Index for today cannot be less than -10.0"],
+      // max: [26, "USGA Index for today cannot be greater than 26.0"],
+      validate: {
+        validator: function (v) {
+          // Allow null/undefined values
+          if (v == null) return true;
+          // Ensure the value has at most 1 decimal place
+          return Number.isInteger(v * 10);
+        },
+        message: "USGA Index for today must have at most one decimal place",
+      },
+    },
+    rochHandicapForThisRound: Number,
+    usgaHandicapForThisRound: Number,
+    rochNewCap: Number,
+    usgaNewCap: Number,
+    teeAbreviation: String,
+    // handicapDifferential: Number,
     scoreId: {
       type: Schema.Types.ObjectId,
       ref: "Score",
@@ -52,14 +73,14 @@ const HCapSchema = new Schema(
       email: { type: String },
       name: { type: String }
     },
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    // userId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "User",
+    // },
     // String representation of the user who created/updated the HCap (populated by controller)
-    user: { type: String },
+    // user: { type: String },
     // Backwards-compatible alias
-    username: { type: String },
+    // username: { type: String },
     orphaned: { type: Boolean, default: false },
   },
   {
@@ -72,6 +93,6 @@ const HCapSchema = new Schema(
 HCapSchema.index({ memberId: 1, datePlayed: -1 });
 HCapSchema.index({ matchId: 1 });
 HCapSchema.index({ scorecardId: 1, datePlayed: -1 });
-HCapSchema.index({ user: 1, datePlayed: -1 });
+HCapSchema.index({ author: 1, datePlayed: -1 });
 
 module.exports = mongoose.model("HCap", HCapSchema);

@@ -114,7 +114,7 @@ Content-Type: application/json
 Use `{{firstName}}` and `{{lastName}}` in your email content to personalize emails:
 ```html
 <p>Dear {{firstName}} {{lastName}},</p>
-<p>Your handicap has been updated...</p>
+<p>Your rochIndex has been updated...</p>
 ```
 
 ### ✅ Bulk Sending

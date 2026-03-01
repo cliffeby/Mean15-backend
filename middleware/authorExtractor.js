@@ -1,11 +1,12 @@
-// Middleware to extract Entra user info and build author object
+// Middleware to extract user info and build author object
+// Uses req.user (set by local JWT auth middleware)
 function extractAuthor(req, _res, next) {
-  const entraUser = req.auth; // <-- use req.auth, not req.user
-  if (entraUser) {
+  const user = req.user; // set by auth.js after verifying local JWT
+  if (user) {
     req.author = {
-      id: entraUser.oid || entraUser.sub,
-      email: entraUser.email,
-      name: entraUser.name,
+      id: user._id?.toString() || '',
+      email: user.email || '',
+      name: user.name || user.email || '',
     };
   }
   next();
