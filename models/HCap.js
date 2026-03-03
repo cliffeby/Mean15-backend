@@ -9,42 +9,12 @@ const HCapSchema = new Schema(
     // currentHCap: Number,
     // newHCap: Number,
     datePlayed: Date,
-    rochDifferentialForTodaysRound: Number,
-    usgaDifferentialForTodaysRound: Number,
-    rochIndexForThisRound: Number,
-    usgaIndexForThisRound: Number,
-    usgaIndexAfterTodaysScore: {
-      type: Number,
-      // min: [-10, "USGA Index for today cannot be less than -10.0"],
-      // max: [54, "USGA Index for today cannot be greater than 54.0"],
-      validate: {
-        validator: function (v) {
-          // Allow null/undefined values
-          if (v == null) return true;
-          // Ensure the value has at most 1 decimal place
-          return Number.isInteger(v * 10);
-        },
-        message: "USGA Index for today must have at most one decimal place",
-      },
-    },
-    rochIndexAfterTodaysScore: {
-      type: Number,
-      // min: [-10, "USGA Index for today cannot be less than -10.0"],
-      // max: [26, "USGA Index for today cannot be greater than 26.0"],
-      validate: {
-        validator: function (v) {
-          // Allow null/undefined values
-          if (v == null) return true;
-          // Ensure the value has at most 1 decimal place
-          return Number.isInteger(v * 10);
-        },
-        message: "USGA Index for today must have at most one decimal place",
-      },
-    },
-    rochHandicapForThisRound: Number,
-    usgaHandicapForThisRound: Number,
-    rochNewCap: Number,
-    usgaNewCap: Number,
+    usgaIndexB4Round: Number,
+    rochIndexB4Round: Number,
+    usgaIndexAfterRound: Number,
+    rochIndexAfterRound: Number,
+    differentialForRound: Number,
+    courseAdjustedDifferentialForRound: Number,
     teeAbreviation: String,
     // handicapDifferential: Number,
     scoreId: {

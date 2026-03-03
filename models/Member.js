@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: false },
-  usgaIndex: {
+  usgaIndexB4Round: {
     type: Number,
     min: [-10, 'USGA Index cannot be less than -10.0'],
     max: [54, 'USGA Index cannot be greater than 54.0'],
@@ -17,7 +17,7 @@ const memberSchema = new mongoose.Schema({
       message: 'USGA Index must have at most one decimal place'
     }
   },
-  rochIndex: {
+  rochIndexB4Round: {
     type: Number,
     min: [-10, 'USGA Index cannot be less than -10.0'],
     max: [54, 'USGA Index cannot be greater than 54.0'],

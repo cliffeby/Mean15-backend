@@ -66,16 +66,19 @@ exports.createHcap = async (req, res, next) => {
 
     const hcap = await HCap.create(hcapData);
 
-    // Update member's lastDatePlayed if we have a memberId and datePlayed
-    if (hcap.memberId && hcap.datePlayed) {
+    // Update member fields if we have a memberId
+    if (hcap.memberId) {
       try {
-        await Member.findByIdAndUpdate(
-          hcap.memberId,
-          { lastDatePlayed: hcap.datePlayed },
-          { new: true }
-        );
+        const memberUpdate = {};
+        if (hcap.datePlayed) memberUpdate.lastDatePlayed = hcap.datePlayed;
+        if (hcap.usgaIndexAfterRound != null) memberUpdate.usgaIndexB4Round = hcap.usgaIndexAfterRound;
+        if (hcap.rochIndexAfterRound != null) memberUpdate.rochIndexB4Round = hcap.rochIndexAfterRound;
+        if (Object.keys(memberUpdate).length > 0) {
+          await Member.findByIdAndUpdate(hcap.memberId, memberUpdate, { new: true });
+          console.log(`Updated member ${hcap.memberId} with:`, memberUpdate);
+        }
       } catch (memberErr) {
-        console.warn('Failed to update member lastDatePlayed:', memberErr);
+        console.warn('Failed to update member after HCap create:', memberErr);
       }
     }
 
@@ -128,15 +131,18 @@ exports.updateHcap = async (req, res, next) => {
     const hcap = await HCap.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!hcap) return res.status(404).json({ success: false, message: 'Not found' });
 
-    if (hcap.memberId && hcap.datePlayed) {
+    if (hcap.memberId) {
       try {
-        await Member.findByIdAndUpdate(
-          hcap.memberId,
-          { lastDatePlayed: hcap.datePlayed },
-          { new: true }
-        );
+        const memberUpdate = {};
+        if (hcap.datePlayed) memberUpdate.lastDatePlayed = hcap.datePlayed;
+        if (hcap.usgaIndexAfterRound != null) memberUpdate.usgaIndexB4Round = hcap.usgaIndexAfterRound;
+        if (hcap.rochIndexAfterRound != null) memberUpdate.rochIndexB4Round = hcap.rochIndexAfterRound;
+        if (Object.keys(memberUpdate).length > 0) {
+          await Member.findByIdAndUpdate(hcap.memberId, memberUpdate, { new: true });
+          console.log(`Updated member ${hcap.memberId} with:`, memberUpdate);
+        }
       } catch (memberErr) {
-        console.warn('Failed to update member lastDatePlayed:', memberErr);
+        console.warn('Failed to update member after HCap update:', memberErr);
       }
     }
 
