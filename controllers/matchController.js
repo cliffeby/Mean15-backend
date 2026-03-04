@@ -252,6 +252,27 @@ exports.getMatchesByStatus = async (req, res, next) => {
 // @desc    Update match status
 // @route   PATCH /api/matches/:id/status
 // @access  Private
+// @desc    Update match pairings (foursomeIdsTEMP, partnerIdsTEMP only)
+// @route   PATCH /api/matches/:id/pairings
+// @access  Private (admin)
+exports.updateMatchPairings = async (req, res, next) => {
+  try {
+    const { foursomeIdsTEMP, partnerIdsTEMP } = req.body;
+    const match = await Match.findById(req.params.id);
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Match not found' });
+    }
+    match.foursomeIdsTEMP = foursomeIdsTEMP || [];
+    match.partnerIdsTEMP = partnerIdsTEMP || [];
+    match.markModified('foursomeIdsTEMP');
+    match.markModified('partnerIdsTEMP');
+    await match.save();
+    res.json({ success: true, match });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.updateMatchStatus = async (req, res, next) => {
   try {
     console.log(`Updating match : ${JSON.stringify(req.body)}`);

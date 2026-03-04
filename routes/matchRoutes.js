@@ -9,7 +9,8 @@ const {
   getMatchesByUser,
   getMatchesByStatus,
   updateMatchStatus,
-  updateMatchScorecard
+  updateMatchScorecard,
+  updateMatchPairings
 } = require('../controllers/matchController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
 const { extractAuthor } = require('../middleware/authorExtractor');
@@ -28,5 +29,6 @@ router.get('/user/:userId', getMatchesByUser);           // Get matches by user
 router.get('/status/:status', getMatchesByStatus);       // Get matches by status
 router.patch('/:id/status', requireMinRole('admin'), extractAuthor, updateMatchStatus);          // Update match status
 router.patch('/:id/scorecard', requireMinRole('admin') ,extractAuthor, updateMatchScorecard); // Update match scorecard (admin only)
+router.patch('/:id/pairings', requireMinRole('admin'), extractAuthor, updateMatchPairings); // Update match pairings only
 
 module.exports = router;
