@@ -9,7 +9,8 @@ const {
   getScoresByMember,
   getScoresByMatch,
   deleteScoresByMatch,
-  getScoresByScorecard
+  getScoresByScorecard,
+  getWinnersReport
 } = require('../controllers/scoreController');
 const { requireMinRole } = require('../middleware/roleHierarchy');
 const { extractAuthor } = require('../middleware/authorExtractor');
@@ -21,6 +22,7 @@ router.get('/', getScores);           // Get all scores
 router.get('/member/:memberId', getScoresByMember); // Get scores by member
 router.get('/match/:matchId', getScoresByMatch);   // Get scores by match
 router.get('/scorecard/:scorecardId', getScoresByScorecard); // Get scores by scorecard
+router.get('/winners', getWinnersReport);                    // Winners report (must be before /:id)
 router.get('/:id', getScore);         // Get single score
 router.post('/', requireMinRole('admin'), extractAuthor, createScore); // Create new score (editor or admin)
 router.put('/:id', requireMinRole('admin'), extractAuthor, updateScore); // Update score (editor or admin)

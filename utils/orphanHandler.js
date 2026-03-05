@@ -43,9 +43,13 @@ class OrphanHandler {
         const score = await Score.findById(String(scoreIdToCheck));
         if (!score) scoreMissing = true;
       }
-      // Only orphaned if BOTH are missing or invalid
+      // Orphaned if EITHER match or score is missing/invalid
       if (matchMissing && scoreMissing) {
         hcapOrphans.push({ hcap, reason: 'No valid matchId or scoreId' });
+      } else if (matchMissing) {
+        hcapOrphans.push({ hcap, reason: `matchId references a non-existent match` });
+      } else if (scoreMissing) {
+        hcapOrphans.push({ hcap, reason: `scoreId references a non-existent score` });
       }
     }
     return hcapOrphans;

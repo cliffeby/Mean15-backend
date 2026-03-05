@@ -193,3 +193,69 @@ exports.deleteScoresByMatch = async (req, res, next) => {
     next(err);
   }
 };
+
+// Winners report: top 5 all-time and winners from past 5 rounds
+exports.getWinnersReport = async (req, res, next) => {
+  try {
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+
+    const scores = await Score.find({
+      orphaned: { $ne: true },
+      datePlayed: { $gte: twelveMonthsAgo }
+    })
+      .populate('memberId', 'firstName lastName')
+      .lean();
+
+    // --- Top 5 all-time winners ---
+    const winCountMap = {};
+    for (const score of scores) {
+      if (!score.memberId) continue;
+      const memberId = score.memberId._id ? score.memberId._id.toString() : score.memberId.toString();
+      const name = score.memberId.firstName
+        ? `${score.memberId.firstName} ${score.memberId.lastName}`
+        : memberId;
+      if (!winCountMap[memberId]) {
+        winCountMap[memberId] = { name, twoBall: 0, oneBall: 0, indo: 0, total: 0 };
+      }
+      if (score.wonTwoBall) { winCountMap[memberId].twoBall++; winCountMap[memberId].total++; }
+      if (score.wonOneBall) { winCountMap[memberId].oneBall++; winCountMap[memberId].total++; }
+      if (score.wonIndo)    { winCountMap[memberId].indo++;    winCountMap[memberId].total++; }
+    }
+    const topFive = Object.values(winCountMap)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    // --- Past 5 rounds winners ---
+    const matchMap = {};
+    for (const score of scores) {
+      if (!score.matchId) continue;
+      const matchId = score.matchId.toString();
+      if (!matchMap[matchId]) {
+        matchMap[matchId] = { matchId, datePlayed: score.datePlayed, winners: { twoBall: [], oneBall: [], indo: [] } };
+      }
+      if (!matchMap[matchId].datePlayed && score.datePlayed) {
+        matchMap[matchId].datePlayed = score.datePlayed;
+      }
+    }
+
+    const recentMatches = Object.values(matchMap)
+      .filter(m => m.datePlayed)
+      .sort((a, b) => new Date(b.datePlayed) - new Date(a.datePlayed))
+      .slice(0, 5);
+
+    for (const match of recentMatches) {
+      const matchScores = scores.filter(s => s.matchId && s.matchId.toString() === match.matchId);
+      const getName = s => s.memberId && s.memberId.firstName
+        ? `${s.memberId.firstName} ${s.memberId.lastName}`
+        : (s.memberId ? s.memberId.toString() : '');
+      match.winners.twoBall = matchScores.filter(s => s.wonTwoBall && s.memberId).map(getName);
+      match.winners.oneBall = matchScores.filter(s => s.wonOneBall && s.memberId).map(getName);
+      match.winners.indo    = matchScores.filter(s => s.wonIndo    && s.memberId).map(getName);
+    }
+
+    res.json({ success: true, topFive, recentRounds: recentMatches });
+  } catch (err) {
+    next(err);
+  }
+};
