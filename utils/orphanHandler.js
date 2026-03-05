@@ -30,16 +30,18 @@ class OrphanHandler {
         const match = await Match.findById(String(matchIdToCheck));
         if (!match) matchMissing = true;
       }
-      // Check scoreId: null/undefined or missing Score
+      // Check scoreId: only flag missing if non-null/non-empty AND the referenced score doesn't exist.
+      // A null/empty scoreId is acceptable (score linkage is optional).
+      // Also normalise the string "null" which Mongoose can store instead of actual null.
       let scoreIdToCheck = null;
-      if (hcap.scoreId == null) {
-        scoreMissing = true;
+      if (hcap.scoreId == null || hcap.scoreId === 'null' || hcap.scoreId === '') {
+        // acceptable – not an orphan condition
       } else if (typeof hcap.scoreId === 'object' && hcap.scoreId._id) {
         scoreIdToCheck = hcap.scoreId._id;
       } else {
         scoreIdToCheck = hcap.scoreId;
       }
-      if (!scoreMissing && scoreIdToCheck) {
+      if (scoreIdToCheck) {
         const score = await Score.findById(String(scoreIdToCheck));
         if (!score) scoreMissing = true;
       }
