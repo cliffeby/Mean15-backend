@@ -99,8 +99,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: false, limit: '15mb' }));
 app.use(cookieParser());
 app.use(compression());
 

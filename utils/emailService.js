@@ -28,7 +28,7 @@ class EmailService {
    * @param {string} params.replyTo - Reply-to email address (optional)
    * @returns {Promise<Object>} Result with messageId and status
    */
-  async sendEmail({ to, cc = null, subject, htmlContent, plainTextContent = null, replyTo = null }) {
+  async sendEmail({ to, cc = null, subject, htmlContent, plainTextContent = null, replyTo = null, attachments = null }) {
     if (!this.client) {
       throw new Error('Azure Communication Services not configured. Please set AZURE_COMMUNICATION_CONNECTION_STRING.');
     }
@@ -86,7 +86,8 @@ class EmailService {
           return { address: r.email, ...(displayNameForHeader ? { displayName: displayNameForHeader } : {}) };
         })
       },
-      ...(replyTo && { replyTo: [{ address: replyTo }] })
+      ...(replyTo && { replyTo: [{ address: replyTo }] }),
+      ...(attachments && attachments.length > 0 && { attachments })
     };
 
     // If cc provided, normalize and add cc recipients

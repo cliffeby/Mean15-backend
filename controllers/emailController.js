@@ -27,7 +27,25 @@ exports.getEmailStatus = async (_req, res, next) => {
  */
 exports.sendToMembers = async (req, res, next) => {
   try {
-    const { memberIds, subject, htmlContent, plainTextContent, personalize = true } = req.body;
+    const { memberIds, subject, htmlContent, plainTextContent, personalize = true, attachments } = req.body;
+
+    // Validate attachments if provided
+    if (attachments != null) {
+      if (!Array.isArray(attachments)) {
+        return res.status(400).json({ success: false, message: 'attachments must be an array' });
+      }
+      for (const att of attachments) {
+        if (!att.name || !att.contentType || !att.contentInBase64) {
+          return res.status(400).json({ success: false, message: 'Each attachment requires name, contentType, and contentInBase64' });
+        }
+        if (typeof att.contentInBase64 !== 'string' || !/^[A-Za-z0-9+/]*={0,2}$/.test(att.contentInBase64)) {
+          return res.status(400).json({ success: false, message: 'Attachment contentInBase64 is not valid base64' });
+        }
+        if (att.contentInBase64.length > 13 * 1024 * 1024) {
+          return res.status(400).json({ success: false, message: 'Attachment exceeds maximum size' });
+        }
+      }
+    }
 
     // Validation
     if (!memberIds || !Array.isArray(memberIds) || memberIds.length === 0) {
@@ -109,7 +127,8 @@ exports.sendToMembers = async (req, res, next) => {
         cc: req.body.cc || null,
         subject,
         htmlContent,
-        plainTextContent
+        plainTextContent,
+        attachments: attachments || null,
       });
     }
 
