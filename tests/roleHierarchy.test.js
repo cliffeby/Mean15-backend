@@ -1,8 +1,9 @@
 const { requireMinRole} = require('../middleware/roleHierarchy');
 
 // Mock Express req, res, next
-function mockReq(roles) {
-  return { auth: { roles } };
+// roleHierarchy.js uses req.user.role (single string) set by local JWT auth
+function mockReq(role) {
+  return { user: { role } };
 }
 function mockRes() {
   const res = {};
@@ -13,7 +14,7 @@ function mockRes() {
 
 describe('requireMinRole middleware', () => {
   it('allows access for exact role', () => {
-    const req = mockReq(['admin']);
+    const req = mockReq('admin');
     const res = mockRes();
     const next = jest.fn();
     requireMinRole('admin')(req, res, next);
@@ -22,7 +23,7 @@ describe('requireMinRole middleware', () => {
   });
 
   it('allows access for higher role', () => {
-    const req = mockReq(['developer']);
+    const req = mockReq('developer');
     const res = mockRes();
     const next = jest.fn();
     requireMinRole('admin')(req, res, next);
@@ -31,7 +32,7 @@ describe('requireMinRole middleware', () => {
   });
 
   it('denies access for lower role', () => {
-    const req = mockReq(['user']);
+    const req = mockReq('user');
     const res = mockRes();
     const next = jest.fn();
     requireMinRole('admin')(req, res, next);
@@ -39,13 +40,12 @@ describe('requireMinRole middleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
       error: 'Requires at least admin role',
-      roles: ['user'],
-      details: { roles: ['user'] }
+      role: 'user'
     });
   });
 
-  it('denies access for no roles', () => {
-    const req = mockReq([]);
+  it('denies access for no role', () => {
+    const req = { user: {} };
     const res = mockRes();
     const next = jest.fn();
     requireMinRole('user')(req, res, next);
@@ -53,8 +53,8 @@ describe('requireMinRole middleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
   });
 
-  it('handles multiple roles, uses highest', () => {
-    const req = mockReq(['user', 'admin']);
+  it('allows access for admin role when fieldhand is required', () => {
+    const req = mockReq('admin');
     const res = mockRes();
     const next = jest.fn();
     requireMinRole('fieldhand')(req, res, next);

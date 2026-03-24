@@ -33,14 +33,18 @@ exports.createMember = async (req, res, next) => {
     console.error('[createMember] Error:', err.message);
     if (err.name === 'ValidationError') {
       console.error('[createMember] Validation errors:', err.errors);
+      const firstMessage = err.errors[Object.keys(err.errors)[0]]?.message || 'Validation error';
       return res.status(400).json({ 
         success: false, 
-        message: 'Validation error', 
+        error: firstMessage,
         errors: Object.keys(err.errors).map(key => ({
           field: key,
           message: err.errors[key].message
         }))
       });
+    }
+    if (err.name === 'CastError') {
+      return res.status(400).json({ success: false, error: err.message });
     }
     next(err);
   }

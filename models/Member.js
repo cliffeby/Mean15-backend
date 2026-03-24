@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const memberSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: false },
+  usgaIndex: {
+    type: Number,
+    min: [-10, 'USGAIndex cannot be less than -10.0'],
+    max: [54, 'USGAIndex cannot be greater than 54.0']
+  },
   usgaIndexB4Round: {
     type: Number,
     min: [-10, 'USGA Index cannot be less than -10.0'],

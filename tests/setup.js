@@ -1,5 +1,12 @@
-// Test setup - mock express-jwt to bypass Entra validation in tests
+// Test setup - mock auth middleware and external services for tests
 // This keeps production code clean while allowing tests to run
+
+// Mock local JWT auth middleware to inject req.user for all controller tests.
+// auth.test.js overrides this with jest.unmock so it can test the real implementation.
+jest.mock('../middleware/auth', () => (req, res, next) => {
+  req.user = { _id: '507f1f77bcf86cd799439011', email: 'admin@example.com', role: 'admin', name: 'Test Admin' };
+  next();
+});
 
 // Mock express-jwt to inject test auth data
 // Use doMock to avoid needing the actual module installed

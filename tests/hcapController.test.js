@@ -1,3 +1,5 @@
+jest.setTimeout(10000); // Allow extra time for async DB operations
+
 const request = require('supertest');
 const app = require('../app');
 const mongoose = require('mongoose');
@@ -11,7 +13,7 @@ describe('HCap Controller', () => {
   beforeAll(async () => {
     const testUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mean15b_test';
     await mongoose.connect(testUri, {});
-  }, 5000);
+  }, 10000);
 
   afterAll(async () => {
     await mongoose.connection.close();
@@ -21,7 +23,7 @@ describe('HCap Controller', () => {
     const res = await request(app).get('/api/hcaps');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body.hcaps)).toBe(true);
-  });
+  }, 10000);
 
   it('POST /api/hcaps should create HCap', async () => {
     const data = { name: 'Test HCap', postedScore: 80 };
@@ -31,7 +33,7 @@ describe('HCap Controller', () => {
     expect(res.statusCode).toBe(201);
     expect(res.body.hcap.postedScore).toBe(80);
     hcapId = res.body.hcap._id;
-  });
+  }, 10000);
 
   it('PUT /api/hcaps/:id should update HCap', async () => {
     const res = await request(app)
@@ -39,14 +41,14 @@ describe('HCap Controller', () => {
       .send({ postedScore: 85 });
     expect(res.statusCode).toBe(200);
     expect(res.body.hcap.postedScore).toBe(85);
-  });
+  }, 10000);
 
   it('DELETE /api/hcaps/:id should delete HCap', async () => {
     const res = await request(app)
       .delete(`/api/hcaps/${hcapId}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-  });
+  }, 10000);
 
   it('should update member.lastDatePlayed when creating HCap with memberId', async () => {
     const Member = require('../models/Member');
@@ -60,7 +62,7 @@ describe('HCap Controller', () => {
     const updated = await Member.findById(member._id);
     const actual = new Date(updated.lastDatePlayed).toISOString().slice(0, 10);
     expect(actual).toBe(testDate);
-  });
+  }, 10000);
 
 
 });

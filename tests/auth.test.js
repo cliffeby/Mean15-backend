@@ -1,5 +1,9 @@
 
 
+// Unmock auth so this test file exercises the real auth middleware
+// (setup.js globally mocks it for controller tests; we override that here)
+jest.unmock('../middleware/auth');
+
 // mockUser must be defined before any require or jest.mock calls that use it
 const mockUser = { _id: '123', name: 'Test User', email: 'test@example.com' };
 
